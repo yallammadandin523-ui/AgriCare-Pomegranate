@@ -1,0 +1,117 @@
+
+<!DOCTYPE html>
+<html lang="{{ current_language }}">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Edit Farm Details | AgriCare</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <style>
+        .edit-container {
+            max-width: 750px;
+            margin: 40px auto;
+            padding: 30px;
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 5px 25px rgba(0,0,0,0.08);
+        }
+        .edit-container h2 { margin-bottom: 25px; }
+        .edit-form {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 18px;
+        }
+        .edit-form label { font-weight: 600; }
+        .edit-form input, .edit-form select {
+            width: 100%;
+            padding: 12px;
+            margin-top: 7px;
+            border: 1px solid #ccc;
+            border-radius: 8px;
+            box-sizing: border-box;
+        }
+        .edit-actions {
+            grid-column: 1 / -1;
+            display: flex;
+            gap: 12px;
+            margin-top: 15px;
+        }
+        .edit-actions button, .edit-actions a {
+            padding: 12px 22px;
+            border: none;
+            border-radius: 8px;
+            text-decoration: none;
+            cursor: pointer;
+        }
+        .save-btn { background: #198754; color: white; }
+        .cancel-btn { background: #eee; color: #333; }
+        @media(max-width:600px) {
+            .edit-form { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="edit-container">
+    <h2>✏️ Edit Farm Details</h2>
+
+    <form method="POST" class="edit-form">
+
+        <label>
+            Field Name *
+            <input type="text" name="field_name"
+                   value="{{ field.field_name }}" required>
+        </label>
+
+        <label>
+            Farm Location *
+            <input type="text" name="location"
+                   value="{{ field.location }}" required>
+        </label>
+
+        <label>
+            Land Area (Acres) *
+            <input type="number" step="0.01" min="0.01"
+                   name="land_area" value="{{ field.land_area }}" required>
+        </label>
+
+        <label>
+            Crop Name
+            <input type="text" name="crop_name"
+                   value="{{ field.crop_name }}">
+        </label>
+
+        <label>
+            Pomegranate Variety
+            <input type="text" name="variety"
+                   value="{{ field.variety or '' }}">
+        </label>
+
+        <label>
+            Planting Date
+            <input type="date" name="planting_date"
+                   value="{{ field.planting_date or '' }}">
+        </label>
+
+        <label>
+            Soil Type
+            <input type="text" name="soil_type"
+                   value="{{ field.soil_type or '' }}">
+        </label>
+
+        <label>
+            Irrigation Type
+            <input type="text" name="irrigation_type"
+                   value="{{ field.irrigation_type or '' }}">
+        </label>
+
+        <div class="edit-actions">
+            <button type="submit" class="save-btn">💾 Update Details</button>
+            <a href="{{ url_for('my_field') }}" class="cancel-btn">Cancel</a>
+        </div>
+
+    </form>
+</div>
+
+</body>
+</html>

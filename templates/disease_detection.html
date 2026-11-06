@@ -1,0 +1,1308 @@
+
+<!DOCTYPE html>
+<html lang="{{ current_language }}">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>
+        {% if current_language == 'kn' %}
+            AgriCare AI | ಬೆಳೆ ರೋಗ ಪತ್ತೆ
+        {% else %}
+            AgriCare AI | Crop Disease Detection
+        {% endif %}
+    </title>
+
+    <link rel="stylesheet"
+          href="{{ url_for('static', filename='css/style.css') }}">
+
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: #f3f7f0;
+            color: #294233;
+        }
+
+        .navbar {
+            background: white;
+            padding: 18px 6%;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid #e6eee5;
+            gap: 15px;
+            flex-wrap: wrap;
+        }
+
+        .logo {
+            color: #176236;
+            font-size: 22px;
+            font-weight: 800;
+        }
+
+        .nav-right {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .navbar a {
+            text-decoration: none;
+            color: #277747;
+            font-size: 13px;
+            font-weight: 700;
+        }
+
+        .language-select {
+            padding: 9px;
+            border: 1px solid #dce8dc;
+            border-radius: 8px;
+            background: white;
+            color: #36533e;
+            cursor: pointer;
+        }
+
+        .container {
+            max-width: 1100px;
+            margin: 35px auto;
+            padding: 0 20px;
+        }
+
+        .page-heading {
+            margin-bottom: 25px;
+        }
+
+        .page-heading small {
+            color: #25844a;
+            font-size: 10px;
+            font-weight: 800;
+            letter-spacing: 2px;
+        }
+
+        .page-heading h1 {
+            color: #174b30;
+            font-size: 30px;
+            margin: 10px 0;
+        }
+
+        .page-heading p {
+            color: #839087;
+            font-size: 13px;
+            line-height: 1.8;
+        }
+
+        .hero {
+            background: linear-gradient(120deg, #14532d, #15803d, #22a653);
+            color: white;
+            padding: 28px;
+            border-radius: 16px;
+            margin-bottom: 25px;
+        }
+
+        .hero h2 {
+            margin-bottom: 10px;
+            font-size: 21px;
+        }
+
+        .hero p {
+            color: #dcfce7;
+            font-size: 13px;
+            line-height: 1.8;
+        }
+
+        .main-card {
+            background: white;
+            border-radius: 18px;
+            padding: 30px;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            box-shadow: 0 5px 25px rgba(30,70,35,.05);
+        }
+
+        .upload-area {
+            background: #f5faf3;
+            border: 2px dashed #a9c9a7;
+            border-radius: 16px;
+            min-height: 310px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            padding: 25px;
+        }
+
+        .upload-icon {
+            font-size: 55px;
+            margin-bottom: 15px;
+        }
+
+        .upload-area h3 {
+            color: #285b39;
+            font-size: 17px;
+            margin-bottom: 9px;
+        }
+
+        .upload-area p {
+            color: #8a998d;
+            font-size: 11px;
+            line-height: 1.7;
+            margin-bottom: 18px;
+        }
+
+        input[type="file"] {
+            width: 100%;
+            max-width: 250px;
+            font-size: 11px;
+        }
+
+        .preview {
+            display: none;
+            max-width: 100%;
+            max-height: 220px;
+            object-fit: contain;
+            margin-top: 18px;
+            border-radius: 12px;
+        }
+
+        .form-section {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .detect-button {
+            width: 100%;
+            margin-top: 25px;
+            padding: 15px;
+            background: #21834a;
+            color: white;
+            border: none;
+            border-radius: 9px;
+            font-size: 13px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: .2s;
+        }
+
+        .detect-button:hover {
+            background: #155d34;
+        }
+
+        .detect-button:disabled {
+            opacity: .6;
+            cursor: not-allowed;
+        }
+
+        .info-card {
+            margin-top: 20px;
+            padding: 20px;
+            background: #e8f4e5;
+            border-radius: 13px;
+        }
+
+        .info-card h3 {
+            color: #246b3c;
+            font-size: 13px;
+            margin-bottom: 10px;
+        }
+
+        .info-card p,
+        .info-card li {
+            color: #647d68;
+            font-size: 11px;
+            line-height: 1.9;
+        }
+
+        .info-card ul {
+            padding-left: 18px;
+        }
+
+        .steps {
+            display: flex;
+            gap: 12px;
+            margin-top: 25px;
+        }
+
+        .step {
+            flex: 1;
+            background: white;
+            border: 1px solid #e5eee3;
+            padding: 16px;
+            border-radius: 12px;
+        }
+
+        .step span {
+            font-size: 22px;
+        }
+
+        .step h4 {
+            color: #31513b;
+            font-size: 11px;
+            margin: 9px 0 5px;
+        }
+
+        .step p {
+            color: #89958b;
+            font-size: 10px;
+            line-height: 1.5;
+        }
+
+        .flash-message {
+            padding: 13px;
+            background: #fff3cd;
+            color: #765b13;
+            border-radius: 9px;
+            margin-bottom: 18px;
+            font-size: 13px;
+        }
+
+        .result-card {
+            margin-top: 28px;
+            padding: 25px;
+            background: white;
+            border-radius: 17px;
+            border: 1px solid #dcebd9;
+            box-shadow: 0 5px 25px rgba(30,70,35,.05);
+        }
+
+        .result-card > h2 {
+            color: #176236;
+            margin-bottom: 12px;
+            font-size: 22px;
+        }
+
+        .result-intro {
+            color: #849187;
+            font-size: 12px;
+            line-height: 1.8;
+            margin-bottom: 20px;
+        }
+
+        .result-summary {
+            background: #e8f4e5;
+            border-left: 4px solid #21834a;
+            padding: 17px;
+            border-radius: 9px;
+            margin-bottom: 20px;
+        }
+
+        .result-summary p {
+            color: #36533e;
+            font-size: 13px;
+            line-height: 1.9;
+        }
+
+        .result-item {
+            padding: 20px;
+            background: #f5faf3;
+            border-radius: 12px;
+            margin-bottom: 16px;
+            border: 1px solid #e1eddf;
+        }
+
+        .result-item h3 {
+            color: #246b3c;
+            font-size: 14px;
+            margin-bottom: 9px;
+        }
+
+        .result-item p,
+        .result-item li {
+            color: #526b58;
+            font-size: 12px;
+            line-height: 1.9;
+            overflow-wrap: anywhere;
+        }
+
+        .result-item ul {
+            padding-left: 20px;
+            margin-bottom: 12px;
+        }
+
+        .rank-label {
+            display: inline-block;
+            background: #dff1df;
+            color: #176236;
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 10px;
+            font-weight: 700;
+            margin-bottom: 12px;
+        }
+
+        .confidence-label {
+            display: flex;
+            justify-content: space-between;
+            color: #246b3c;
+            font-size: 12px;
+            font-weight: 700;
+            margin: 15px 0 8px;
+        }
+
+        .confidence-bar {
+            width: 100%;
+            height: 10px;
+            background: #dcebd9;
+            border-radius: 20px;
+            overflow: hidden;
+            margin-bottom: 18px;
+        }
+
+        .confidence-fill {
+            height: 100%;
+            background: #21834a;
+            border-radius: 20px;
+        }
+
+        .warning-box {
+            background: #fff3cd;
+            border: 1px solid #f2d98c;
+            padding: 17px;
+            border-radius: 11px;
+            margin-top: 15px;
+        }
+
+        .warning-box h3 {
+            color: #765b13;
+            margin-bottom: 8px;
+            font-size: 14px;
+        }
+
+        .warning-box p {
+            color: #765b13;
+            font-size: 12px;
+            line-height: 1.8;
+        }
+
+        footer {
+            text-align: center;
+            padding: 25px;
+            color: #99a49a;
+            font-size: 10px;
+        }
+
+        @media(max-width: 700px) {
+            .main-card {
+                grid-template-columns: 1fr;
+                padding: 18px;
+            }
+
+            .steps {
+                flex-direction: column;
+            }
+
+            .page-heading h1 {
+                font-size: 24px;
+            }
+
+            .navbar {
+                padding: 15px 5%;
+            }
+
+            .nav-right {
+                gap: 10px;
+            }
+
+            .result-card {
+                padding: 17px;
+            }
+        }
+        /* Camera and Upload Design */
+
+.camera-options {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    width: 100%;
+    max-width: 280px;
+}
+
+.camera-btn {
+    width: 100%;
+    padding: 14px;
+    border-radius: 10px;
+    font-family: inherit;
+    font-size: 12px;
+    font-weight: 700;
+    text-align: center;
+    cursor: pointer;
+    transition: all .3s ease;
+}
+
+.upload-btn {
+    background: #21834a;
+    color: white;
+    border: 1px solid #21834a;
+}
+
+.camera-open-btn {
+    background: white;
+    color: #21834a;
+    border: 1px solid #21834a;
+}
+
+.camera-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(33,131,74,.15);
+}
+
+#cameraContainer {
+    background: #f5faf3;
+    border: 1px solid #dcebd9;
+    border-radius: 15px;
+    padding: 15px;
+    text-align: center;
+}
+
+#cameraVideo {
+    width: 100%;
+    max-width: 400px;
+    border-radius: 12px;
+    border: 3px solid white;
+    box-shadow: 0 4px 15px rgba(0,0,0,.12);
+    background: #172b1d;
+}
+
+#capturePhoto,
+#closeCamera {
+    margin: 10px 4px 0;
+    padding: 11px 17px;
+    border: none;
+    border-radius: 8px;
+    font-size: 11px;
+    font-weight: 700;
+    cursor: pointer;
+}
+
+#capturePhoto {
+    background: #21834a;
+    color: white;
+}
+
+#closeCamera {
+    background: #fee2e2;
+    color: #b42318;
+}
+
+#capturePhoto:hover,
+#closeCamera:hover {
+    opacity: .85;
+}
+
+.preview {
+    width: 100%;
+    max-width: 320px;
+    max-height: 240px;
+    object-fit: contain;
+    background: #f5faf3;
+    border: 2px solid #dcebd9;
+    border-radius: 14px;
+    padding: 5px;
+    box-shadow: 0 5px 15px rgba(30,70,35,.08);
+}
+
+@media(max-width: 700px) {
+    .camera-options {
+        max-width: 100%;
+    }
+
+    #cameraVideo {
+        max-width: 100%;
+    }
+}
+    </style>
+</head>
+
+<body>
+
+<nav class="navbar">
+
+    <div class="logo">🌿 AgriCare AI</div>
+
+    <div class="nav-right">
+
+        <form action="{{ url_for('set_language') }}" method="POST">
+            <input type="hidden" name="next" value="{{ request.path }}">
+
+            <select name="language"
+                    class="language-select"
+                    onchange="this.form.submit()">
+
+                <option value="en"
+                    {% if current_language == 'en' %}selected{% endif %}>
+                    English
+                </option>
+
+                <option value="kn"
+                    {% if current_language == 'kn' %}selected{% endif %}>
+                    ಕನ್ನಡ
+                </option>
+
+            </select>
+        </form>
+
+        <a href="{{ url_for('dashboard') }}">
+            {% if current_language == 'kn' %}
+                ← ಡ್ಯಾಶ್‌ಬೋರ್ಡ್‌ಗೆ ಹಿಂತಿರುಗಿ
+            {% else %}
+                ← Back to Dashboard
+            {% endif %}
+        </a>
+
+    </div>
+
+</nav>
+
+
+<main class="container">
+
+    <div class="page-heading">
+
+        <small>
+            {% if current_language == 'kn' %}
+                ಸ್ಮಾರ್ಟ್ ಕೃಷಿ ತಂತ್ರಜ್ಞಾನ
+            {% else %}
+                SMART AGRICULTURE TECHNOLOGY
+            {% endif %}
+        </small>
+
+        <h1>
+            🌱
+            {% if current_language == 'kn' %}
+                ಬೆಳೆ ರೋಗ ಪತ್ತೆ
+            {% else %}
+                Crop Disease Detection
+            {% endif %}
+        </h1>
+
+        <p>
+            {% if current_language == 'kn' %}
+                ಬೆಳೆಯ ಎಲೆಯ ಚಿತ್ರವನ್ನು ಅಪ್‌ಲೋಡ್ ಮಾಡಿ. AI ಸ್ವಯಂಚಾಲಿತವಾಗಿ ಸಸ್ಯವನ್ನು ಗುರುತಿಸಿ ಸಂಭವನೀಯ ರೋಗಗಳು ಮತ್ತು ಪರಿಹಾರಗಳನ್ನು ತಿಳಿಸುತ್ತದೆ.
+            {% else %}
+                Upload a crop leaf image. AI automatically identifies the plant and analyses possible diseases, symptoms and treatments.
+            {% endif %}
+        </p>
+
+    </div>
+
+
+    <section class="hero">
+
+        <h2>
+            {% if current_language == 'kn' %}
+                🌿 AI ಮೂಲಕ ಸ್ವಯಂಚಾಲಿತ ಸಸ್ಯ ಮತ್ತು ರೋಗ ಗುರುತಿಸುವಿಕೆ
+            {% else %}
+                🌿 AI-Powered Plant & Disease Identification
+            {% endif %}
+        </h2>
+
+        <p>
+            {% if current_language == 'kn' %}
+                ಯಾವುದೇ ಸಸ್ಯದ ಹೆಸರನ್ನು ಅಥವಾ ಸ್ಥಳವನ್ನು ನಮೂದಿಸುವ ಅಗತ್ಯವಿಲ್ಲ. ನಿಮ್ಮ ಚಿತ್ರವನ್ನು AI ಪರಿಶೀಲಿಸಿ ಸಸ್ಯ ಮತ್ತು ಸಂಭವನೀಯ ರೋಗವನ್ನು ಗುರುತಿಸುತ್ತದೆ.
+            {% else %}
+                No need to manually enter plant name or location. AI examines your uploaded photo to identify the plant and possible disease.
+            {% endif %}
+        </p>
+
+    </section>
+
+
+    {% with messages = get_flashed_messages() %}
+        {% if messages %}
+            {% for message in messages %}
+                <div class="flash-message">{{ message }}</div>
+            {% endfor %}
+        {% endif %}
+    {% endwith %}
+
+
+    <section class="main-card">
+
+        <div class="upload-area">
+
+            <div class="upload-icon">📸</div>
+
+            <h3>
+                {% if current_language == 'kn' %}
+                    ಸಸ್ಯದ ಚಿತ್ರ ಅಪ್‌ಲೋಡ್ ಮಾಡಿ
+                {% else %}
+                    Upload Plant Image
+                {% endif %}
+            </h3>
+
+            <p>
+                {% if current_language == 'kn' %}
+                    ಎಲೆ ಅಥವಾ ಸಸ್ಯದ ಸ್ಪಷ್ಟ ಚಿತ್ರವನ್ನು ಆಯ್ಕೆಮಾಡಿ.
+                    JPG, PNG ಮತ್ತು WEBP ಬೆಂಬಲಿತವಾಗಿವೆ.
+                {% else %}
+                    Choose a clear photo of the plant or affected leaf.
+                    JPG, PNG and WEBP are supported.
+                {% endif %}
+            </p>
+<div class="camera-options">
+
+    <label for="crop_image" class="camera-btn upload-btn">
+        📁
+        {% if current_language == 'kn' %}
+            ಗ್ಯಾಲರಿಯಿಂದ ಫೋಟೋ ಆಯ್ಕೆಮಾಡಿ
+        {% else %}
+            Choose from Gallery
+        {% endif %}
+    </label>
+
+    <button type="button"
+            class="camera-btn camera-open-btn"
+            id="openCamera">
+        📸
+        {% if current_language == 'kn' %}
+            ಕ್ಯಾಮೆರಾ ತೆರೆಯಿರಿ
+        {% else %}
+            Open Camera
+        {% endif %}
+    </button>
+
+    <input type="file"
+           id="crop_image"
+           name="crop_image"
+           accept="image/jpeg,image/png,image/webp"
+           required
+           form="diseaseForm"
+           style="display:none;">
+
+</div>
+
+<div id="cameraContainer" style="display:none; margin-top:15px;">
+
+    <video id="cameraVideo"
+           autoplay
+           playsinline
+           style="width:100%; max-width:300px; border-radius:12px;">
+    </video>
+
+    <br>
+
+    <button type="button" id="capturePhoto">
+        📷 Capture Photo
+    </button>
+
+    <button type="button" id="closeCamera">
+        ✖ Close Camera
+    </button>
+
+</div>
+
+<canvas id="cameraCanvas" style="display:none;"></canvas>
+
+<img id="crop-preview"
+     class="preview"
+     alt="Plant image preview">
+
+<img id="crop-preview"
+     class="preview"
+     alt="Plant image preview">
+        </div>
+
+
+        <div class="form-section">
+
+            <form id="diseaseForm"
+                  action="{{ url_for('disease_detection') }}"
+                  method="POST"
+                  enctype="multipart/form-data">
+
+                <div class="info-card">
+
+                    <h3>
+                        🤖
+                        {% if current_language == 'kn' %}
+                            ಸ್ವಯಂಚಾಲಿತ ಸಸ್ಯ ಗುರುತಿಸುವಿಕೆ
+                        {% else %}
+                            Automatic Plant Identification
+                        {% endif %}
+                    </h3>
+
+                    <p>
+                        {% if current_language == 'kn' %}
+                            ನೀವು ಅಪ್‌ಲೋಡ್ ಮಾಡುವ ಚಿತ್ರದಿಂದ AI ಸಸ್ಯದ ಹೆಸರನ್ನು ಸ್ವಯಂಚಾಲಿತವಾಗಿ ಗುರುತಿಸಿ ನಂತರ ರೋಗವನ್ನು ವಿಶ್ಲೇಷಿಸುತ್ತದೆ.
+                        {% else %}
+                            AI will automatically identify the plant from your uploaded photo and then analyse possible diseases.
+                        {% endif %}
+                    </p>
+
+                </div>
+
+
+                <button type="submit"
+                        class="detect-button"
+                        id="detectButton">
+
+                    🔍
+
+                    {% if current_language == 'kn' %}
+                        ಸಸ್ಯ ಮತ್ತು ರೋಗವನ್ನು ಪತ್ತೆಹಚ್ಚಿ
+                    {% else %}
+                        Identify Plant & Detect Disease
+                    {% endif %}
+
+                </button>
+
+            </form>
+
+
+            <div class="info-card">
+
+                <h3>
+                    💡
+                    {% if current_language == 'kn' %}
+                        ಚಿತ್ರ ಅಪ್‌ಲೋಡ್ ಸಲಹೆಗಳು
+                    {% else %}
+                        Image Upload Tips
+                    {% endif %}
+                </h3>
+
+                <ul>
+                    {% if current_language == 'kn' %}
+                        <li>ಬಾಧಿತ ಎಲೆಯ ಸ್ಪಷ್ಟ ಚಿತ್ರ ತೆಗೆದುಕೊಳ್ಳಿ.</li>
+                        <li>ಉತ್ತಮ ಬೆಳಕಿನಲ್ಲಿ ಚಿತ್ರ ತೆಗೆಯಿರಿ.</li>
+                        <li>ಮಸುಕಾದ ಚಿತ್ರಗಳನ್ನು ತಪ್ಪಿಸಿ.</li>
+                        <li>JPG, PNG ಅಥವಾ WEBP ಚಿತ್ರ ಬಳಸಿ.</li>
+                    {% else %}
+                        <li>Capture the affected leaf clearly.</li>
+                        <li>Use good lighting.</li>
+                        <li>Avoid blurry images.</li>
+                        <li>Upload JPG, PNG or WEBP format.</li>
+                    {% endif %}
+                </ul>
+
+            </div>
+
+        </div>
+
+    </section>
+
+
+    {% if disease_result is defined and disease_result %}
+
+    <section class="result-card">
+
+        {% if disease_result.is_disease and disease_result.possible_causes %}
+
+            <h2>
+                {% if current_language == 'kn' %}
+                    🔬 ಸಸ್ಯ ಮತ್ತು ರೋಗ ವಿಶ್ಲೇಷಣೆ
+                {% else %}
+                    🔬 Plant & Disease Analysis
+                {% endif %}
+            </h2>
+
+            <p class="result-intro">
+                {% if current_language == 'kn' %}
+                    ನಿಮ್ಮ ಚಿತ್ರವನ್ನು AI ವಿಶ್ಲೇಷಿಸಿದೆ. ಕೆಳಗೆ ಸಂಭವನೀಯ ರೋಗಗಳು ಮತ್ತು ಅವುಗಳ ಪರಿಹಾರಗಳನ್ನು ನೀಡಲಾಗಿದೆ.
+                {% else %}
+                    Your image has been analysed by AI. Possible diseases and their treatment guidance are shown below.
+                {% endif %}
+            </p>
+
+
+            <div class="result-summary">
+
+                <p>
+                    🌱
+                    <strong>
+                        {% if current_language == 'kn' %}
+                            AI ಗುರುತಿಸಿದ ಸಸ್ಯ:
+                        {% else %}
+                            Detected Plant:
+                        {% endif %}
+                    </strong>
+
+                    {{ crop or 'Not identified' }}
+
+                </p>
+
+            </div>
+
+
+            {% for cause in disease_result.possible_causes[:4] %}
+
+            <div class="result-item">
+
+                <span class="rank-label">
+
+                    {% if loop.index == 1 %}
+                        🥇
+                        {% if current_language == 'kn' %}
+                            ಅತ್ಯಂತ ಸಂಭವನೀಯ ರೋಗ
+                        {% else %}
+                            Most Likely Disease
+                        {% endif %}
+                    {% elif loop.index == 2 %}
+                        🥈
+                        {% if current_language == 'kn' %}
+                            ಎರಡನೇ ಸಾಧ್ಯತೆ
+                        {% else %}
+                            Second Possibility
+                        {% endif %}
+                    {% elif loop.index == 3 %}
+                        🥉
+                        {% if current_language == 'kn' %}
+                            ಮೂರನೇ ಸಾಧ್ಯತೆ
+                        {% else %}
+                            Third Possibility
+                        {% endif %}
+                    {% else %}
+                        {% if current_language == 'kn' %}
+                            ನಾಲ್ಕನೇ ಸಾಧ್ಯತೆ
+                        {% else %}
+                            Fourth Possibility
+                        {% endif %}
+                    {% endif %}
+
+                </span>
+
+
+                <h3>🌱 {{ cause.name }}</h3>
+
+
+                <div class="confidence-label">
+
+                    <span>
+                        {% if current_language == 'kn' %}
+                            ವಿಶ್ವಾಸದ ಅಂಕ
+                        {% else %}
+                            Confidence Score
+                        {% endif %}
+                    </span>
+
+                    <span>{{ cause.confidence }}%</span>
+
+                </div>
+
+
+                <div class="confidence-bar">
+                    <div class="confidence-fill"
+                         style="width: {{ [[cause.confidence|float, 0]|max, 100]|min }}%;">
+                    </div>
+                </div>
+
+
+                <h3>
+                    🔍
+                    {% if current_language == 'kn' %}
+                        ರೋಗದ ದೃಶ್ಯ ಸಾಕ್ಷ್ಯ
+                    {% else %}
+                        Supporting Evidence
+                    {% endif %}
+                </h3>
+
+                <p>{{ cause.evidence or 'Not available' }}</p>
+
+
+                <h3 style="margin-top:15px;">
+                    🆚
+                    {% if current_language == 'kn' %}
+                        ಗುರುತಿಸುವ ಲಕ್ಷಣಗಳು
+                    {% else %}
+                        Distinguishing Symptoms
+                    {% endif %}
+                </h3>
+
+                <p>{{ cause.distinguishing_symptoms or 'Not available' }}</p>
+
+
+                <h3 style="margin-top:15px;">
+                    ⚠️
+                    {% if current_language == 'kn' %}
+                        ರೋಗದ ಲಕ್ಷಣಗಳು ಮತ್ತು ಹಾನಿ
+                    {% else %}
+                        Disease Symptoms and Damage
+                    {% endif %}
+                </h3>
+
+                <p>{{ cause.damage or 'Not available' }}</p>
+
+
+                <h3 style="margin-top:15px;">
+                    💊
+                    {% if current_language == 'kn' %}
+                        ಚಿಕಿತ್ಸೆ ಮತ್ತು ಪರಿಹಾರ
+                    {% else %}
+                        Treatment and Solutions
+                    {% endif %}
+                </h3>
+
+                {% if cause.treatment %}
+
+                    <ul>
+                        {% for method in cause.treatment[:4] %}
+                            <li>{{ method }}</li>
+                        {% endfor %}
+                    </ul>
+
+                {% else %}
+
+                    <p>
+                        {% if current_language == 'kn' %}
+                            ಚಿಕಿತ್ಸೆಯ ಮಾಹಿತಿ ಲಭ್ಯವಿಲ್ಲ. ಕೃಷಿ ತಜ್ಞರನ್ನು ಸಂಪರ್ಕಿಸಿ.
+                        {% else %}
+                            Treatment information is unavailable. Consult an agricultural expert.
+                        {% endif %}
+                    </p>
+
+                {% endif %}
+
+
+                <h3 style="margin-top:15px;">
+                    🛡️
+                    {% if current_language == 'kn' %}
+                        ತಡೆಗಟ್ಟುವ ವಿಧಾನಗಳು
+                    {% else %}
+                        Prevention Methods
+                    {% endif %}
+                </h3>
+
+                {% if cause.prevention %}
+
+                    <ul>
+                        {% for tip in cause.prevention[:4] %}
+                            <li>{{ tip }}</li>
+                        {% endfor %}
+                    </ul>
+
+                {% else %}
+
+                    <p>
+                        {% if current_language == 'kn' %}
+                            ತಡೆಗಟ್ಟುವ ಮಾಹಿತಿ ಲಭ್ಯವಿಲ್ಲ.
+                        {% else %}
+                            Prevention information is unavailable.
+                        {% endif %}
+                    </p>
+
+                {% endif %}
+
+            </div>
+
+            {% endfor %}
+
+
+            {% if disease_result.needs_expert_inspection %}
+
+            <div class="warning-box">
+
+                <h3>
+                    ⚠️
+                    {% if current_language == 'kn' %}
+                        ಕೃಷಿ ತಜ್ಞರ ಪರಿಶೀಲನೆ ಅಗತ್ಯ
+                    {% else %}
+                        Expert Inspection Recommended
+                    {% endif %}
+                </h3>
+
+                <p>
+                    {% if current_language == 'kn' %}
+                        AI ಫಲಿತಾಂಶದ ಬಗ್ಗೆ ಖಚಿತತೆ ಕಡಿಮೆ ಇದೆ. ಯಾವುದೇ ಚಿಕಿತ್ಸೆ ನೀಡುವ ಮೊದಲು ಕೃಷಿ ತಜ್ಞರನ್ನು ಸಂಪರ್ಕಿಸಿ.
+                    {% else %}
+                        The AI is uncertain about this diagnosis. Consult an agricultural expert before applying treatment.
+                    {% endif %}
+                </p>
+
+            </div>
+
+            {% endif %}
+
+
+            {% if disease_result.overall_note %}
+
+            <div class="info-card">
+
+                <h3>
+                    📝
+                    {% if current_language == 'kn' %}
+                        ಹೆಚ್ಚುವರಿ ಮಾಹಿತಿ
+                    {% else %}
+                        Additional Observation
+                    {% endif %}
+                </h3>
+
+                <p>{{ disease_result.overall_note }}</p>
+
+            </div>
+
+            {% endif %}
+
+
+        {% else %}
+
+            <h2>
+                {% if current_language == 'kn' %}
+                    ⚠️ ವಿಶ್ವಾಸಾರ್ಹ ರೋಗ ಪತ್ತೆಯಾಗಿಲ್ಲ
+                {% else %}
+                    ⚠️ No Reliable Disease Identified
+                {% endif %}
+            </h2>
+
+            <p class="result-intro">
+                {% if current_language == 'kn' %}
+                    ಈ ಚಿತ್ರದಿಂದ ವಿಶ್ವಾಸಾರ್ಹ ರೋಗವನ್ನು ಗುರುತಿಸಲು ಸಾಧ್ಯವಾಗಿಲ್ಲ. ದಯವಿಟ್ಟು ಸಸ್ಯದ ಸ್ಪಷ್ಟ ಚಿತ್ರವನ್ನು ಮತ್ತೆ ಅಪ್‌ಲೋಡ್ ಮಾಡಿ.
+                {% else %}
+                    No reliable disease could be identified from this image. Please upload a clear plant image and try again.
+                {% endif %}
+            </p>
+
+            {% if disease_result.overall_note %}
+
+            <div class="info-card">
+                <h3>📝
+                    {% if current_language == 'kn' %}
+                        ಹೆಚ್ಚುವರಿ ಮಾಹಿತಿ
+                    {% else %}
+                        Additional Information
+                    {% endif %}
+                </h3>
+
+                <p>{{ disease_result.overall_note }}</p>
+            </div>
+
+            {% endif %}
+
+        {% endif %}
+
+
+        <p style="font-size:11px;color:#89958b;margin-top:18px;line-height:1.8;">
+
+            {% if current_language == 'kn' %}
+                ಗಮನಿಸಿ: AI ಫಲಿತಾಂಶವು ಸಂಭವನೀಯ ರೋಗ ಪತ್ತೆ ಮಾತ್ರ. ಇದು ಪ್ರಯೋಗಾಲಯದ ದೃಢೀಕರಣವಲ್ಲ. ಔಷಧಿ ಬಳಸುವ ಮೊದಲು ಕೃಷಿ ತಜ್ಞರ ಸಲಹೆ ಪಡೆಯಿರಿ.
+            {% else %}
+                Note: AI results are possible diagnoses, not laboratory-confirmed identifications. Consult an agricultural expert before applying pesticides or other treatments.
+            {% endif %}
+
+        </p>
+
+    </section>
+
+    {% endif %}
+
+
+    <div class="steps">
+
+        <div class="step">
+            <span>📷</span>
+
+            <h4>
+                {% if current_language == 'kn' %}
+                    ಹಂತ 01 – ಅಪ್‌ಲೋಡ್
+                {% else %}
+                    Step 01 – Upload
+                {% endif %}
+            </h4>
+
+            <p>
+                {% if current_language == 'kn' %}
+                    ಸಸ್ಯದ ಚಿತ್ರವನ್ನು ಅಪ್‌ಲೋಡ್ ಮಾಡಿ.
+                {% else %}
+                    Upload an image of your plant.
+                {% endif %}
+            </p>
+        </div>
+
+
+        <div class="step">
+            <span>🤖</span>
+
+            <h4>
+                {% if current_language == 'kn' %}
+                    ಹಂತ 02 – AI ವಿಶ್ಲೇಷಣೆ
+                {% else %}
+                    Step 02 – AI Analysis
+                {% endif %}
+            </h4>
+
+            <p>
+                {% if current_language == 'kn' %}
+                    AI ಸ್ವಯಂಚಾಲಿತವಾಗಿ ಸಸ್ಯ ಮತ್ತು ರೋಗವನ್ನು ಗುರುತಿಸುತ್ತದೆ.
+                {% else %}
+                    AI automatically identifies the plant and possible disease.
+                {% endif %}
+            </p>
+        </div>
+
+
+        <div class="step">
+            <span>🌿</span>
+
+            <h4>
+                {% if current_language == 'kn' %}
+                    ಹಂತ 03 – ಪರಿಹಾರ ಪಡೆಯಿರಿ
+                {% else %}
+                    Step 03 – Get Solution
+                {% endif %}
+            </h4>
+
+            <p>
+                {% if current_language == 'kn' %}
+                    ರೋಗದ ಲಕ್ಷಣಗಳು, ಚಿಕಿತ್ಸೆ ಮತ್ತು ತಡೆಗಟ್ಟುವ ಸಲಹೆಗಳನ್ನು ಪಡೆಯಿರಿ.
+                {% else %}
+                    Get disease symptoms, treatment and prevention guidance.
+                {% endif %}
+            </p>
+        </div>
+
+    </div>
+
+</main>
+
+
+<footer>
+    {% if current_language == 'kn' %}
+        © 2026 AgriCare AI | ಉತ್ತಮ ಭವಿಷ್ಯಕ್ಕಾಗಿ ಸ್ಮಾರ್ಟ್ ಕೃಷಿ
+    {% else %}
+        © 2026 AgriCare AI | Smart Farming for a Better Future
+    {% endif %}
+</footer>
+
+
+<script>
+    const cropInput = document.getElementById("crop_image");
+    const cropPreview = document.getElementById("crop-preview");
+    const diseaseForm = document.getElementById("diseaseForm");
+    const detectButton = document.getElementById("detectButton");
+
+    const openCamera = document.getElementById("openCamera");
+    const cameraContainer = document.getElementById("cameraContainer");
+    const cameraVideo = document.getElementById("cameraVideo");
+    const capturePhoto = document.getElementById("capturePhoto");
+    const closeCamera = document.getElementById("closeCamera");
+    const cameraCanvas = document.getElementById("cameraCanvas");
+
+    let cameraStream = null;
+    let previewURL = null;
+
+    function showPreview(file) {
+        if (!file) return;
+
+        const allowedTypes = ["image/jpeg", "image/png", "image/webp"];
+
+        if (!allowedTypes.includes(file.type)) {
+            alert("Please select a JPG, PNG or WEBP image.");
+            cropInput.value = "";
+            cropPreview.style.display = "none";
+            return;
+        }
+
+        if (file.size > 5 * 1024 * 1024) {
+            alert("Image must be smaller than 5 MB.");
+            cropInput.value = "";
+            cropPreview.style.display = "none";
+            return;
+        }
+
+        if (previewURL) URL.revokeObjectURL(previewURL);
+
+        previewURL = URL.createObjectURL(file);
+        cropPreview.src = previewURL;
+        cropPreview.style.display = "block";
+    }
+
+    // Gallery upload
+    cropInput.addEventListener("change", function () {
+        showPreview(this.files[0]);
+    });
+
+    // Open laptop camera
+    openCamera.addEventListener("click", async function () {
+        try {
+            if (!navigator.mediaDevices?.getUserMedia) {
+                alert("Camera requires localhost or HTTPS.");
+                return;
+            }
+
+            cameraStream = await navigator.mediaDevices.getUserMedia({
+                video: true,
+                audio: false
+            });
+
+            cameraVideo.srcObject = cameraStream;
+            cameraContainer.style.display = "block";
+            await cameraVideo.play();
+
+        } catch (error) {
+            console.error("Camera error:", error);
+            alert("Camera error: " + error.name + ". Check browser permission or close other camera apps.");
+        }
+    });
+
+    // Capture photo
+    capturePhoto.addEventListener("click", function () {
+        if (!cameraVideo.videoWidth) {
+            alert("Camera is not ready. Please wait.");
+            return;
+        }
+
+        cameraCanvas.width = cameraVideo.videoWidth;
+        cameraCanvas.height = cameraVideo.videoHeight;
+
+        const context = cameraCanvas.getContext("2d");
+        context.drawImage(cameraVideo, 0, 0);
+
+        cameraCanvas.toBlob(function (blob) {
+            if (!blob) {
+                alert("Unable to capture photo.");
+                return;
+            }
+
+            const file = new File(
+                [blob],
+                "plant_camera_photo.jpg",
+                { type: "image/jpeg" }
+            );
+
+            const transfer = new DataTransfer();
+            transfer.items.add(file);
+            cropInput.files = transfer.files;
+
+            showPreview(file);
+            closeCameraStream();
+
+        }, "image/jpeg", 0.90);
+    });
+
+    // Close camera
+    function closeCameraStream() {
+        if (cameraStream) {
+            cameraStream.getTracks().forEach(track => track.stop());
+            cameraStream = null;
+        }
+
+        cameraVideo.srcObject = null;
+        cameraContainer.style.display = "none";
+    }
+
+    closeCamera.addEventListener("click", closeCameraStream);
+
+    // Submit form
+    diseaseForm.addEventListener("submit", function (event) {
+        if (!cropInput.files.length) {
+            event.preventDefault();
+            alert("Please upload or capture a plant image.");
+            return;
+        }
+
+        detectButton.disabled = true;
+        detectButton.innerText = "🤖 AI is analysing image...";
+    });
+
+    window.addEventListener("beforeunload", closeCameraStream);
+</script>
+
+</body>
+</html>

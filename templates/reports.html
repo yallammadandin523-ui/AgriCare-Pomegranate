@@ -1,0 +1,510 @@
+
+
+<style>
+.reports-page {
+    padding: 28px;
+    max-width: 1250px;
+    margin: auto;
+    color: var(--text-color, #18352a);
+}
+
+.reports-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 15px;
+    margin-bottom: 25px;
+}
+
+.reports-header h1 {
+    font-size: 28px;
+    margin: 0 0 7px;
+}
+
+.reports-header p {
+    color: #718078;
+    margin: 0;
+}
+
+.back-btn {
+    text-decoration: none;
+    background: #e8f5ed;
+    color: #176b40;
+    padding: 11px 18px;
+    border-radius: 10px;
+    font-weight: 600;
+}
+
+.report-stats {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 18px;
+    margin-bottom: 28px;
+}
+
+.stat-card {
+    background: white;
+    padding: 22px;
+    border-radius: 15px;
+    border: 1px solid #e7eee9;
+    box-shadow: 0 4px 15px rgba(0,0,0,.04);
+}
+
+.stat-card .stat-icon {
+    font-size: 27px;
+    margin-bottom: 12px;
+}
+
+.stat-card h2 {
+    font-size: 28px;
+    margin: 0;
+    color: #176b40;
+}
+
+.stat-card p {
+    color: #718078;
+    margin: 7px 0 0;
+}
+
+.report-panel {
+    background: white;
+    padding: 23px;
+    border: 1px solid #e7eee9;
+    border-radius: 15px;
+    box-shadow: 0 4px 15px rgba(0,0,0,.04);
+}
+
+.report-toolbar {
+    display: flex;
+    justify-content: space-between;
+    gap: 12px;
+    flex-wrap: wrap;
+    margin: 18px 0;
+}
+
+.report-toolbar input,
+.report-toolbar select {
+    padding: 11px 13px;
+    border: 1px solid #dce7df;
+    border-radius: 9px;
+    outline: none;
+    background: white;
+    color: #18352a;
+}
+
+.report-toolbar input {
+    flex: 1;
+    min-width: 180px;
+}
+
+.report-toolbar select {
+    min-width: 150px;
+}
+
+.report-table-wrap {
+    overflow-x: auto;
+}
+
+.report-table {
+    width: 100%;
+    border-collapse: collapse;
+    min-width: 750px;
+}
+
+.report-table th {
+    text-align: left;
+    background: #f2f8f4;
+    color: #42634f;
+    padding: 14px;
+    font-size: 13px;
+}
+
+.report-table td {
+    padding: 14px;
+    border-bottom: 1px solid #edf1ee;
+    font-size: 14px;
+    vertical-align: middle;
+}
+
+.report-table tr:hover {
+    background: #fafdfa;
+}
+
+.report-image {
+    width: 65px;
+    height: 58px;
+    object-fit: cover;
+    border-radius: 9px;
+    border: 1px solid #e4ece6;
+}
+
+.type-badge {
+    display: inline-block;
+    padding: 6px 10px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 600;
+}
+
+.disease-badge {
+    color: #a33c36;
+    background: #fff0ed;
+}
+
+.pest-badge {
+    color: #946000;
+    background: #fff6df;
+}
+
+.confidence {
+    color: #176b40;
+    font-weight: 700;
+}
+
+.details-btn {
+    border: none;
+    background: #e8f5ed;
+    color: #176b40;
+    padding: 8px 12px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: 600;
+}
+
+.details-row {
+    display: none;
+    background: #f8fbf8;
+}
+
+.details-content {
+    padding: 15px;
+    line-height: 1.7;
+    white-space: normal;
+    overflow-wrap: anywhere;
+}
+
+.empty-state {
+    text-align: center;
+    padding: 55px 15px;
+    color: #718078;
+}
+
+.empty-state .empty-icon {
+    font-size: 48px;
+    margin-bottom: 12px;
+}
+
+@media(max-width:700px) {
+    .reports-page {
+        padding: 15px;
+    }
+
+    .report-stats {
+        grid-template-columns: 1fr;
+    }
+
+    .reports-header h1 {
+        font-size: 23px;
+    }
+}
+
+@media print {
+    body * {
+        visibility: hidden;
+    }
+
+    .reports-page,
+    .reports-page * {
+        visibility: visible;
+    }
+
+    .reports-page {
+        position: absolute;
+        left: 0;
+        top: 0;
+        width: 100%;
+    }
+
+    .back-btn,
+    .report-toolbar,
+    .details-btn {
+        display: none !important;
+    }
+
+    .details-row {
+        display: table-row !important;
+    }
+}
+</style>
+
+<div class="reports-page">
+
+    <div class="reports-header">
+        <div>
+            <h1>
+                {% if current_language == 'kn' %}
+                    📊 ಕೃಷಿ ವರದಿಗಳು
+                {% else %}
+                    📊 AgriCare Reports
+                {% endif %}
+            </h1>
+
+            <p>
+                {% if current_language == 'kn' %}
+                    ನಿಮ್ಮ ಬೆಳೆ ರೋಗ ಮತ್ತು ಕೀಟ ಪತ್ತೆ ವರದಿಗಳು
+                {% else %}
+                    Your crop disease and pest detection reports
+                {% endif %}
+            </p>
+        </div>
+
+        <a href="{{ url_for('dashboard') }}" class="back-btn">
+            ← Dashboard
+        </a>
+    </div>
+
+    <div class="report-stats">
+
+        <div class="stat-card">
+            <div class="stat-icon">📋</div>
+            <h2>{{ total_count }}</h2>
+            <p>
+                {% if current_language == 'kn' %}
+                    ಒಟ್ಟು ವರದಿಗಳು
+                {% else %}
+                    Total Reports
+                {% endif %}
+            </p>
+        </div>
+
+        <div class="stat-card">
+            <div class="stat-icon">🌿</div>
+            <h2>{{ disease_count }}</h2>
+            <p>
+                {% if current_language == 'kn' %}
+                    ರೋಗ ಪತ್ತೆ ವರದಿಗಳು
+                {% else %}
+                    Disease Reports
+                {% endif %}
+            </p>
+        </div>
+
+        <div class="stat-card">
+            <div class="stat-icon">🐛</div>
+            <h2>{{ pest_count }}</h2>
+            <p>
+                {% if current_language == 'kn' %}
+                    ಕೀಟ ಪತ್ತೆ ವರದಿಗಳು
+                {% else %}
+                    Pest Reports
+                {% endif %}
+            </p>
+        </div>
+
+    </div>
+
+    <div class="report-panel">
+
+        <h2>
+            {% if current_language == 'kn' %}
+                ಪತ್ತೆ ಇತಿಹಾಸ
+            {% else %}
+                Detection History
+            {% endif %}
+        </h2>
+
+        <div class="report-toolbar">
+
+            <input
+                type="text"
+                id="reportSearch"
+                placeholder="{% if current_language == 'kn' %}ಬೆಳೆ ಅಥವಾ ರೋಗದ ಹೆಸರು ಹುಡುಕಿ...{% else %}Search crop or disease...{% endif %}"
+                oninput="filterReports()"
+            >
+
+            <select id="typeFilter" onchange="filterReports()">
+                <option value="all">All Types</option>
+                <option value="disease">Disease</option>
+                <option value="pest">Pest</option>
+            </select>
+
+            <button class="back-btn" onclick="window.print()">
+                🖨️ Print / Save PDF
+            </button>
+
+        </div>
+
+        {% if report_records %}
+
+        <div class="report-table-wrap">
+
+            <table class="report-table" id="reportsTable">
+
+                <thead>
+                    <tr>
+                        <th>Image</th>
+                        <th>Crop</th>
+                        <th>Detection</th>
+                        <th>Result</th>
+                        <th>Confidence</th>
+                        <th>Date</th>
+                        <th>Details</th>
+                    </tr>
+                </thead>
+
+                <tbody>
+
+                    {% for record in report_records %}
+
+                    {% set dtype = (record.detection_type or '')|lower %}
+
+                    <tr class="report-row"
+                        data-type="{{ 'disease' if 'disease' in dtype else ('pest' if 'pest' in dtype else 'other') }}">
+
+           <td>
+    {% if record.image_filename %}
+        <img
+            class="report-image"
+            src="{{ url_for('static', filename='uploads/pests/' ~ record.image_filename) }}"
+            alt="Detection image"
+        >
+    {% else %}
+        —
+    {% endif %}
+</td>
+                        <td>{{ record.crop_name or 'Pomegranate' }}</td>
+
+                        <td>
+                            {% if 'disease' in dtype %}
+                                <span class="type-badge disease-badge">Disease</span>
+                            {% elif 'pest' in dtype %}
+                                <span class="type-badge pest-badge">Pest</span>
+                            {% else %}
+                                <span class="type-badge">{{ record.detection_type or 'Other' }}</span>
+                            {% endif %}
+                        </td>
+
+                        <td>{{ record.disease_name or 'Not available' }}</td>
+
+                        <td class="confidence">
+                            {% if record.confidence is not none %}
+                                {{ "%.1f"|format(record.confidence) }}%
+                            {% else %}
+                                —
+                            {% endif %}
+                        </td>
+
+                        <td>
+                            {% if record.detected_at %}
+                                {{ record.detected_at.strftime('%d-%m-%Y') }}
+                            {% else %}
+                                —
+                            {% endif %}
+                        </td>
+
+                        <td>
+                            <button
+                                class="details-btn"
+                                type="button"
+                                onclick="toggleDetails('details-{{ record.id }}', this)"
+                            >
+                                View
+                            </button>
+                        </td>
+
+                    </tr>
+
+                    <tr class="details-row" id="details-{{ record.id }}">
+                        <td colspan="7">
+                            <div class="details-content">
+
+                                <strong>Detection Result:</strong>
+                                {{ record.disease_name or 'Not available' }}
+
+                                <br>
+
+                                <strong>Recommendation:</strong>
+
+                                {% if record.recommendation_data %}
+                                    <pre style="white-space:pre-wrap; font-family:inherit;">{{ record.recommendation_data|tojson(indent=2) }}</pre>
+                                {% elif record.recommendation %}
+                                    {{ record.recommendation }}
+                                {% else %}
+                                    Not available
+                                {% endif %}
+
+                            </div>
+                        </td>
+                    </tr>
+
+                    {% endfor %}
+
+                </tbody>
+            </table>
+
+            <p id="noResults" class="empty-state" style="display:none;">
+                No matching reports found.
+            </p>
+
+        </div>
+
+        {% else %}
+
+        <div class="empty-state">
+            <div class="empty-icon">📂</div>
+            <h3>No Reports Available</h3>
+            <p>Your detection reports will appear here after analysis.</p>
+        </div>
+
+        {% endif %}
+
+    </div>
+
+</div>
+
+<script>
+function toggleDetails(id, button) {
+    const row = document.getElementById(id);
+
+    if (row.style.display === "table-row") {
+        row.style.display = "none";
+        button.textContent = "View";
+    } else {
+        row.style.display = "table-row";
+        button.textContent = "Hide";
+    }
+}
+
+function filterReports() {
+    const search = document.getElementById("reportSearch").value.toLowerCase();
+    const type = document.getElementById("typeFilter").value;
+
+    const rows = document.querySelectorAll(".report-row");
+    let visibleCount = 0;
+
+    rows.forEach(row => {
+        const text = row.innerText.toLowerCase();
+        const rowType = row.dataset.type;
+
+        const matchesSearch = text.includes(search);
+        const matchesType = type === "all" || rowType === type;
+
+        const show = matchesSearch && matchesType;
+
+        row.style.display = show ? "" : "none";
+
+        const details = row.nextElementSibling;
+        details.style.display = "none";
+
+        if (show) visibleCount++;
+    });
+
+    const noResults = document.getElementById("noResults");
+
+    if (noResults) {
+        noResults.style.display = visibleCount === 0 ? "block" : "none";
+    }
+}
+</script>
+

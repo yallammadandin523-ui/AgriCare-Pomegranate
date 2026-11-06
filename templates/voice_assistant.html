@@ -1,0 +1,713 @@
+
+<!DOCTYPE html>
+<html lang="{{ current_language }}">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>AgriCare AI | Voice Assistant</title>
+
+    <link rel="stylesheet"
+          href="{{ url_for('static', filename='css/style.css') }}">
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap"
+          rel="stylesheet">
+
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            font-family: 'Inter', sans-serif;
+            background: #f4f8f3;
+            color: #203529;
+        }
+
+        .assistant-wrapper {
+            max-width: 1100px;
+            margin: 35px auto;
+            padding: 20px;
+        }
+
+        .top-section {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 15px;
+            margin-bottom: 25px;
+        }
+
+        .heading h1 {
+            margin: 0;
+            font-size: 29px;
+            font-weight: 800;
+            color: #174b2b;
+        }
+
+        .heading p {
+            color: #738277;
+            margin-top: 8px;
+            font-size: 14px;
+        }
+
+        .back-link {
+            text-decoration: none;
+            color: #26723d;
+            background: white;
+            padding: 11px 17px;
+            border-radius: 10px;
+            font-weight: 600;
+            box-shadow: 0 3px 12px rgba(0,0,0,.05);
+        }
+
+        .main-card {
+            background: white;
+            border-radius: 22px;
+            padding: 35px;
+            box-shadow: 0 8px 35px rgba(31, 75, 42, .07);
+            border: 1px solid #e8efe7;
+        }
+
+        .welcome-banner {
+            background: linear-gradient(120deg, #174b2b, #319653);
+            color: white;
+            padding: 27px;
+            border-radius: 17px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 15px;
+            flex-wrap: wrap;
+        }
+
+        .welcome-banner h2 {
+            margin: 0 0 9px;
+            font-size: 22px;
+        }
+
+        .welcome-banner p {
+            margin: 0;
+            color: #e0f2e4;
+            font-size: 14px;
+            line-height: 1.6;
+        }
+
+        .banner-icon {
+            font-size: 55px;
+        }
+
+        .language-section {
+            margin: 27px 0;
+        }
+
+        .section-label {
+            font-size: 14px;
+            font-weight: 700;
+            display: block;
+            margin-bottom: 10px;
+        }
+
+        .language-select {
+            width: 100%;
+            max-width: 320px;
+            padding: 13px;
+            border: 1px solid #dce6dc;
+            border-radius: 10px;
+            background: #fbfdfb;
+            font-size: 15px;
+            outline: none;
+        }
+
+        .mic-section {
+            text-align: center;
+            padding: 25px 10px 30px;
+        }
+
+        .mic-circle {
+            width: 135px;
+            height: 135px;
+            margin: 0 auto 20px;
+            border-radius: 50%;
+            background: #e8f5e9;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 55px;
+            border: 7px solid #f3faf3;
+            box-shadow: 0 0 0 2px #d5ead7;
+            cursor: pointer;
+            transition: .3s;
+        }
+
+        .mic-circle:hover {
+            transform: scale(1.06);
+            background: #d8f0dc;
+        }
+
+        .mic-circle.listening {
+            background: #ffeded;
+            border-color: #fff4f4;
+            box-shadow: 0 0 0 3px #f3aaaa;
+            animation: pulse 1.3s infinite;
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.07); }
+            100% { transform: scale(1); }
+        }
+
+        .mic-section h3 {
+            margin: 0 0 8px;
+            color: #214d2d;
+        }
+
+        .mic-section p {
+            color: #849087;
+            font-size: 14px;
+        }
+
+        .status-text {
+            display: inline-block;
+            padding: 9px 17px;
+            border-radius: 30px;
+            background: #f0f7ef;
+            color: #327345;
+            font-size: 13px;
+            margin-top: 8px;
+        }
+
+        .input-section {
+            margin-top: 20px;
+        }
+
+        .question-box {
+            width: 100%;
+            min-height: 115px;
+            resize: vertical;
+            border: 1px solid #dce7dc;
+            background: #fbfdfb;
+            border-radius: 13px;
+            padding: 17px;
+            font-size: 15px;
+            font-family: inherit;
+            outline: none;
+        }
+
+        .question-box:focus {
+            border-color: #48a363;
+            box-shadow: 0 0 0 3px rgba(72,163,99,.10);
+        }
+
+        .button-row {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+            margin-top: 15px;
+        }
+
+        .action-btn {
+            border: none;
+            padding: 13px 20px;
+            border-radius: 10px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 700;
+            transition: .2s;
+        }
+
+        .action-btn:hover {
+            transform: translateY(-2px);
+        }
+
+        .ask-btn {
+            background: #218343;
+            color: white;
+        }
+
+        .listen-btn {
+            background: #eaf5eb;
+            color: #246638;
+        }
+
+        .stop-btn {
+            background: #fff0ef;
+            color: #b33e35;
+        }
+
+        .clear-btn {
+            background: #f0f2f0;
+            color: #526056;
+        }
+
+        .answer-section {
+            margin-top: 30px;
+            border: 1px solid #e0ebe0;
+            border-radius: 15px;
+            overflow: hidden;
+        }
+
+        .answer-header {
+            background: #f0f7ef;
+            padding: 16px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .answer-header h3 {
+            margin: 0;
+            font-size: 16px;
+            color: #245b34;
+        }
+
+        .ai-label {
+            font-size: 11px;
+            background: #d9efdc;
+            color: #226638;
+            padding: 6px 10px;
+            border-radius: 20px;
+            font-weight: 700;
+        }
+
+        .answer-content {
+            min-height: 120px;
+            padding: 22px;
+            line-height: 1.8;
+            font-size: 15px;
+            color: #45584a;
+            white-space: pre-wrap;
+            overflow-wrap: anywhere;
+        }
+
+        .tips-section {
+            margin-top: 25px;
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 14px;
+        }
+
+        .tip-card {
+            background: #f7faf6;
+            padding: 17px;
+            border-radius: 12px;
+            text-align: center;
+            border: 1px solid #edf2ec;
+        }
+
+        .tip-card span {
+            font-size: 25px;
+        }
+
+        .tip-card h4 {
+            margin: 9px 0 5px;
+            font-size: 13px;
+            color: #285c37;
+        }
+
+        .tip-card p {
+            font-size: 11px;
+            color: #879188;
+            line-height: 1.5;
+            margin: 0;
+        }
+
+        .footer-text {
+            text-align: center;
+            margin: 25px 0 5px;
+            font-size: 12px;
+            color: #98a39a;
+        }
+
+        @media(max-width: 650px) {
+            .assistant-wrapper {
+                padding: 12px;
+                margin: 15px auto;
+            }
+
+            .main-card {
+                padding: 18px;
+            }
+
+            .heading h1 {
+                font-size: 23px;
+            }
+
+            .welcome-banner {
+                padding: 20px;
+            }
+
+            .banner-icon {
+                font-size: 38px;
+            }
+
+            .tips-section {
+                grid-template-columns: 1fr;
+            }
+
+            .action-btn {
+                flex: 1 1 40%;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+<div class="assistant-wrapper">
+
+    <div class="top-section">
+    <div class="heading">
+        <h1>🎙 Voice Assistant</h1>
+        <p>Your intelligent farming companion powered by AgriCare AI</p>
+    </div>
+
+    <div style="display:flex; gap:10px; flex-wrap:wrap;">
+        <a href="{{ url_for('voice_history') }}" class="back-link">
+            📜 Voice History
+        </a>
+
+        <a href="/" class="back-link">
+            ← Dashboard
+        </a>
+    </div>
+</div>
+    <div class="main-card">
+
+        <div class="welcome-banner">
+            <div>
+                <h2>Hello, Farmer! 🌱</h2>
+                <p>
+                    Ask anything about farming, crops, diseases,
+                    fertilizers and irrigation.
+                    <br>
+                    ನಿಮ್ಮ ಕೃಷಿ ಪ್ರಶ್ನೆಗಳಿಗೆ AI ಸಹಾಯ ಪಡೆಯಿರಿ.
+                </p>
+            </div>
+
+            <div class="banner-icon">🌾</div>
+        </div>
+
+        <div class="language-section">
+            <label class="section-label" for="language">
+                🌐 Choose Your Language
+            </label>
+
+            <select id="language" class="language-select">
+                <option value="kn-IN">ಕನ್ನಡ (Kannada)</option>
+                <option value="en-IN">English</option>
+            </select>
+        </div>
+
+        <div class="mic-section">
+
+            <div class="mic-circle"
+                 id="micButton"
+                 onclick="startListening()">
+                🎙️
+            </div>
+
+            <h3>Speak to AgriCare AI</h3>
+
+            <p>Tap the microphone and ask your farming question</p>
+
+            <div class="status-text" id="status">
+                ● Ready to listen
+            </div>
+
+        </div>
+
+        <div class="input-section">
+
+            <label class="section-label" for="question">
+                ✍️ Type Your Question
+            </label>
+
+            <textarea
+                id="question"
+                class="question-box"
+                placeholder="ನಿಮ್ಮ ಪ್ರಶ್ನೆಯನ್ನು ಇಲ್ಲಿ ಬರೆಯಿರಿ... / Type your question here..."
+            ></textarea>
+
+            <label style="display:flex; align-items:center; gap:10px;
+              margin:15px 0; color:#285c37; font-size:14px;
+              font-weight:600;">
+    <input type="checkbox" id="autoSpeak">
+    🔊 Automatically speak AI answers
+</label>
+
+                <button class="action-btn ask-btn"
+                        id="askButton"
+                        onclick="askAssistant()">
+                    ✨ Ask AI
+                </button>
+
+                <button class="action-btn listen-btn"
+                        onclick="speakAnswer()">
+                    🔊 Listen
+                </button>
+
+                <button class="action-btn stop-btn"
+                        onclick="stopSpeaking()">
+                    ⏹ Stop
+                </button>
+
+                <button class="action-btn clear-btn"
+                        onclick="clearChat()">
+                    🗑 Clear
+                </button>
+
+            </div>
+
+        </div>
+
+        <div class="answer-section">
+
+            <div class="answer-header">
+                <h3>🤖 AI Assistant Response</h3>
+                <span class="ai-label">GEMINI AI</span>
+            </div>
+
+            <div class="answer-content" id="answer">
+                Welcome to AgriCare AI!
+
+                Ask your farming question using your voice or type it above.
+                Your AI response will appear here.
+            </div>
+
+        </div>
+
+        <div class="tips-section">
+
+            <div class="tip-card">
+                <span>🌱</span>
+                <h4>Crop Guidance</h4>
+                <p>Get useful crop growing advice.</p>
+            </div>
+
+            <div class="tip-card">
+                <span>🦠</span>
+                <h4>Disease Help</h4>
+                <p>Ask about crop diseases and prevention.</p>
+            </div>
+
+            <div class="tip-card">
+                <span>💧</span>
+                <h4>Irrigation</h4>
+                <p>Learn about watering and soil care.</p>
+            </div>
+
+        </div>
+
+    </div>
+
+    <div class="footer-text">
+        © AgriCare AI | Smart Farming Assistant
+    </div>
+
+</div>
+
+<script>
+let recognition = null;
+let latestAnswer = "";
+let isListening = false;
+
+function setStatus(message) {
+    document.getElementById("status").innerText = "● " + message;
+}
+
+function startListening() {
+
+    const SpeechRecognition =
+        window.SpeechRecognition ||
+        window.webkitSpeechRecognition;
+
+    if (!SpeechRecognition) {
+        setStatus("Voice recognition is not supported. Use Chrome.");
+        return;
+    }
+
+    if (isListening && recognition) {
+        recognition.stop();
+        return;
+    }
+
+    recognition = new SpeechRecognition();
+
+    recognition.lang = document.getElementById("language").value;
+    recognition.interimResults = false;
+    recognition.maxAlternatives = 1;
+
+    recognition.onstart = function() {
+        isListening = true;
+
+        document.getElementById("micButton")
+            .classList.add("listening");
+
+        setStatus("Listening... Speak now");
+    };
+
+    recognition.onresult = function(event) {
+        const transcript = event.results[0][0].transcript;
+
+        document.getElementById("question").value = transcript;
+
+        setStatus("Voice converted to text successfully");
+    };
+
+    recognition.onerror = function(event) {
+        setStatus("Voice error: " + event.error);
+    };
+
+    recognition.onend = function() {
+        isListening = false;
+
+        document.getElementById("micButton")
+            .classList.remove("listening");
+
+        if (document.getElementById("status").innerText
+            .includes("Listening")) {
+            setStatus("Ready to listen");
+        }
+    };
+
+    recognition.start();
+}
+
+async function askAssistant() {
+
+    const question =
+        document.getElementById("question").value.trim();
+
+    const language =
+        document.getElementById("language").value;
+
+    const askButton = document.getElementById("askButton");
+    const answerBox = document.getElementById("answer");
+
+    if (!question) {
+        setStatus("Please speak or type your question");
+        return;
+    }
+
+    askButton.disabled = true;
+    askButton.innerText = "⏳ Thinking...";
+    answerBox.innerText = "AgriCare AI is preparing your answer...";
+
+    setStatus("Connecting to Gemini AI");
+
+    try {
+const response = await fetch("/voice-assistant/ask", {
+    method: "POST",
+    headers: {
+        "Content-Type": "application/json"
+    },
+    body: JSON.stringify({
+        question: question,
+        language: language
+    })
+});
+
+const contentType = response.headers.get("content-type");
+
+if (!contentType || !contentType.includes("application/json")) {
+    const errorText = await response.text();
+    console.error("SERVER HTML RESPONSE:", errorText);
+
+    throw new Error(
+        "Server returned HTML instead of JSON. Check Flask terminal."
+    );
+}
+
+const data = await response.json();
+
+if (!response.ok) {
+    throw new Error(data.error || "AI response failed");
+}
+        latestAnswer = data.answer;
+
+        answerBox.innerText = latestAnswer;
+        if (document.getElementById("autoSpeak").checked) {
+    speakAnswer();
+}
+
+        setStatus("AI answer received successfully");
+
+    } catch (error) {
+
+        answerBox.innerText = "Unable to get AI response.";
+
+        setStatus(error.message);
+
+    } finally {
+
+        askButton.disabled = false;
+        askButton.innerText = "✨ Ask AI";
+
+    }
+}
+
+function speakAnswer() {
+
+    if (!latestAnswer) {
+        setStatus("Please ask a question first");
+        return;
+    }
+
+    window.speechSynthesis.cancel();
+
+    const speech = new SpeechSynthesisUtterance(latestAnswer);
+
+    speech.lang = document.getElementById("language").value;
+    speech.rate = 0.9;
+    speech.pitch = 1;
+
+    speech.onstart = function() {
+        setStatus("AI is speaking...");
+    };
+
+    speech.onend = function() {
+        setStatus("Speech completed");
+    };
+
+    speech.onerror = function() {
+        setStatus("Unable to play voice");
+    };
+
+    window.speechSynthesis.speak(speech);
+}
+
+function stopSpeaking() {
+
+    window.speechSynthesis.cancel();
+
+    if (recognition && isListening) {
+        recognition.stop();
+    }
+
+    setStatus("Voice stopped");
+}
+
+function clearChat() {
+
+    document.getElementById("question").value = "";
+
+    document.getElementById("answer").innerText =
+        "Your AI response will appear here.";
+
+    latestAnswer = "";
+
+    window.speechSynthesis.cancel();
+
+    setStatus("Ready to listen");
+}
+</script>
+
+</body>
+</html>

@@ -1,0 +1,371 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Smart Crop Calendar | AgriCare AI</title>
+
+<style>
+*{margin:0;padding:0;box-sizing:border-box;font-family:Arial,sans-serif}
+body{background:#f3f8f1;color:#25452e;padding:22px}
+.container{max-width:1100px;margin:auto}
+.header{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:25px}
+.header h1{color:#21834a;font-size:26px}
+.back-btn{background:#21834a;color:white;text-decoration:none;padding:11px 17px;border-radius:9px}
+.card{background:white;padding:22px;border-radius:17px;margin-bottom:20px;box-shadow:0 5px 20px rgba(30,70,35,.06)}
+.hero{background:linear-gradient(120deg,#176b3a,#55a66b);color:white;padding:27px;border-radius:18px;margin-bottom:20px}
+.hero h2{font-size:23px;margin-bottom:9px}
+.hero p{line-height:1.6;color:#e8f5e9}
+.input-row{display:flex;gap:12px;align-items:end;flex-wrap:wrap;margin-top:20px}
+.input-row label{display:block;font-weight:bold;margin-bottom:8px}
+input[type=date]{padding:12px;border:1px solid #cbdcc9;border-radius:9px;width:230px}
+button{cursor:pointer;border:none;border-radius:9px;padding:12px 17px;font-weight:bold}
+.primary{background:#21834a;color:white}
+.secondary{background:#eaf5eb;color:#21834a}
+.calendar-head{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:20px}
+.calendar-head h2{color:#21834a;font-size:21px}
+.month-buttons{display:flex;gap:8px}
+.calendar-grid{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:7px}
+.day-name{text-align:center;font-weight:bold;color:#66806a;padding:10px 0;font-size:13px}
+.day{min-height:78px;background:#f5f9f3;border:1px solid #e7eee4;border-radius:10px;padding:9px 5px;text-align:center;cursor:pointer}
+.day:hover{border-color:#21834a}
+.day.selected{border:2px solid #21834a;background:#e9f6eb}
+.day.today{box-shadow:inset 0 0 0 2px #e3a52c}
+.day.empty{background:transparent;border:none;cursor:default}
+.day-number{font-weight:bold;font-size:14px}
+.dots{display:flex;justify-content:center;gap:4px;margin-top:9px;flex-wrap:wrap}
+.dot{width:7px;height:7px;border-radius:50%}
+.green{background:#21834a}.blue{background:#3685cf}.orange{background:#e49a27}.purple{background:#9564c9}
+.legend{display:flex;gap:15px;flex-wrap:wrap;margin-top:17px;font-size:12px;color:#637568}
+.legend span{display:flex;align-items:center;gap:6px}
+.task-panel{background:#f7faf5;border-radius:13px;padding:18px;margin-top:20px}
+.task-panel h3{margin-bottom:6px;color:#21834a}
+.task-date{font-size:13px;color:#748477;margin-bottom:15px}
+.task{display:flex;align-items:flex-start;gap:11px;background:white;padding:13px;border-radius:10px;margin-top:9px;border:1px solid #e8eee5}
+.task input{width:17px;height:17px;margin-top:2px;accent-color:#21834a}
+.task strong{display:block;margin-bottom:5px;font-size:14px}
+.task small{color:#718075;line-height:1.5}
+.task.done strong{text-decoration:line-through;color:#849187}
+.stage-list{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:12px;margin-top:15px}
+.stage{background:#f3f8f1;border-radius:12px;padding:16px;border-left:4px solid #21834a}
+.stage h3{font-size:14px;margin-bottom:8px}
+.stage p{font-size:12px;color:#718075;line-height:1.5}
+.progress-track{height:9px;background:#e5eee3;border-radius:20px;margin-top:12px;overflow:hidden}
+.progress-fill{height:100%;width:0;background:#21834a;transition:.3s}
+.note{font-size:12px;color:#7a887b;line-height:1.6;margin-top:14px}
+@media(max-width:600px){
+body{padding:11px}.card{padding:14px}.hero{padding:19px}
+.day{min-height:61px;padding:8px 2px}.day-name{font-size:11px}
+.day-number{font-size:12px}.calendar-grid{gap:4px}
+}
+</style>
+</head>
+
+<body>
+<div class="container">
+
+<div class="header">
+<h1>🌱 Smart Crop Calendar</h1>
+<a href="{{ url_for('dashboard') }}" class="back-btn">← Dashboard</a>
+</div>
+
+<div class="hero">
+<h2>🍎 Pomegranate Growth Planner</h2>
+<p>Plan your crop activities, monitor growth and track completed farm tasks in one calendar.</p>
+</div>
+
+<div class="card">
+<h3>🌿 Set Up Your Crop</h3>
+<p style="color:#718075;margin-top:7px;font-size:14px">Enter your planting date to create an estimated activity calendar.</p>
+
+<div class="input-row">
+<div>
+<label for="plantingDate">Planting Date</label>
+<input type="date" id="plantingDate">
+</div>
+<button class="primary" onclick="generateCalendar()">Create My Calendar</button>
+</div>
+</div>
+
+<div class="card">
+<div class="calendar-head">
+<h2 id="monthTitle">📅 Crop Activity Calendar</h2>
+<div class="month-buttons">
+<button class="secondary" onclick="changeMonth(-1)">❮</button>
+<button class="secondary" onclick="changeMonth(1)">❯</button>
+</div>
+</div>
+
+<div class="calendar-grid" id="calendarGrid"></div>
+
+<div class="legend">
+<span><i class="dot green"></i> Growth check</span>
+<span><i class="dot blue"></i> Water / Nutrition check</span>
+<span><i class="dot orange"></i> Pest inspection</span>
+<span><i class="dot purple"></i> Growth stage</span>
+</div>
+
+<div class="task-panel" id="taskPanel">
+<h3>📌 Select a date</h3>
+<p class="task-date">Click a calendar date to see its activities.</p>
+</div>
+</div>
+
+<div class="card">
+<h2>🌳 Your Crop Growth Journey</h2>
+<div class="stage-list" id="stageList">
+<div class="stage"><h3>🌱 Establishment</h3><p>Initial plant establishment and survival monitoring.</p></div>
+<div class="stage"><h3>🌿 Vegetative Growth</h3><p>Observe new leaves, shoots and branch development.</p></div>
+<div class="stage"><h3>🌸 Flowering</h3><p>Monitor flowering and observe flower health.</p></div>
+<div class="stage"><h3>🍎 Fruit Development</h3><p>Observe fruit formation, size and health.</p></div>
+<div class="stage"><h3>🌳 Harvest Assessment</h3><p>Check fruit maturity and harvesting readiness.</p></div>
+</div>
+<p class="note">Important: These are illustrative monitoring stages, not fixed flowering or harvesting dates. Actual timing depends on Bahar selection, plant age, variety, season and field conditions. Follow local horticulture recommendations for fertilizer and plant protection.</p>
+</div>
+
+<div class="card">
+<h3>✅ My Activity Progress</h3>
+<p id="progressText" style="margin-top:9px;color:#718075;font-size:14px">0 tasks completed</p>
+<div class="progress-track"><div class="progress-fill" id="progressFill"></div></div>
+<p class="note">Completed checkboxes are currently saved only in this browser page. They will reset if the page is reloaded.</p>
+</div>
+
+</div>
+
+
+<script>
+let plantingDate = null;
+let currentMonth = new Date();
+let selectedDate = null;
+let completedTasks = {};
+
+const savedPlantingDate = {{ calendar_data.planting_date.strftime('%Y-%m-%d')|tojson if calendar_data else 'null' }};
+const savedCompletedTasks = {{ calendar_data.completed_tasks|tojson if calendar_data and calendar_data.completed_tasks else 'null' }};
+
+if (savedPlantingDate) {
+    plantingDate = new Date(savedPlantingDate + "T00:00:00");
+    selectedDate = new Date(plantingDate);
+    currentMonth = new Date(
+        plantingDate.getFullYear(),
+        plantingDate.getMonth(),
+        1
+    );
+}
+
+if (savedCompletedTasks) {
+    try {
+        completedTasks = JSON.parse(savedCompletedTasks);
+    } catch (error) {
+        completedTasks = {};
+        console.error("Could not load saved tasks:", error);
+    }
+}
+
+const activities = [
+ {day:0,title:"Record planting details",type:"purple",desc:"Record the planting date, variety and number of plants."},
+ {day:7,title:"Plant survival check",type:"green",desc:"Check whether plants are established and observe wilting or damage."},
+ {day:14,title:"New growth observation",type:"green",desc:"Observe new shoots and leaves. Record any unusual changes."},
+ {day:21,title:"Soil moisture check",type:"blue",desc:"Check soil moisture and adjust irrigation according to field conditions."},
+ {day:30,title:"Plant health inspection",type:"orange",desc:"Inspect leaves, stems and nearby soil for visible pest or disease symptoms."},
+ {day:45,title:"Growth progress record",type:"green",desc:"Take a crop photo and compare plant growth."},
+ {day:60,title:"Nutrition review",type:"blue",desc:"Review soil and plant nutrient requirements with local agricultural guidance."},
+ {day:75,title:"Branch and shoot observation",type:"green",desc:"Observe branch development and remove damaged material where appropriate."},
+ {day:90,title:"Growth stage review",type:"purple",desc:"Review plant development and record the current growth stage."},
+ {day:120,title:"Flowering observation",type:"purple",desc:"If flowering has started, record flowering progress and inspect flower health."},
+ {day:150,title:"Fruit set observation",type:"green",desc:"If fruits have formed, observe fruit set and any visible damage."},
+ {day:180,title:"Fruit health inspection",type:"orange",desc:"Inspect fruits and leaves for pest or disease symptoms."},
+ {day:210,title:"Fruit development review",type:"green",desc:"Record fruit growth and monitor irrigation conditions."},
+ {day:240,title:"Harvest readiness assessment",type:"purple",desc:"Assess fruit maturity using suitable local harvesting guidance."}
+];
+
+function dateKey(date) {
+ return date.getFullYear()+"-"+date.getMonth()+"-"+date.getDate();
+}
+
+function getDayActivities(date) {
+ if (!plantingDate) return [];
+
+ const diff = Math.floor((date - plantingDate)/86400000);
+ if (diff < 0 || diff > 270) return [];
+
+ let list = activities.filter(a => a.day === diff);
+
+ if (diff > 0 && diff % 7 === 0) {
+   list.push({day:diff,title:"Weekly field observation",type:"green",desc:"Check soil moisture, plant growth and general crop health."});
+ }
+
+ if (diff > 0 && diff % 14 === 0) {
+   list.push({day:diff,title:"Pest and disease inspection",type:"orange",desc:"Inspect leaves, shoots and fruits for visible symptoms."});
+ }
+
+ return list;
+}
+
+function renderCalendar() {
+ const grid = document.getElementById("calendarGrid");
+ const year = currentMonth.getFullYear();
+ const month = currentMonth.getMonth();
+ const firstDay = new Date(year,month,1).getDay();
+ const totalDays = new Date(year,month+1,0).getDate();
+
+ document.getElementById("monthTitle").textContent =
+ "📅 "+currentMonth.toLocaleString("en",{month:"long",year:"numeric"});
+
+ grid.innerHTML = "";
+
+ ["Sun","Mon","Tue","Wed","Thu","Fri","Sat"].forEach(d => {
+  grid.innerHTML += `<div class="day-name">${d}</div>`;
+ });
+
+ for (let i=0; i<firstDay; i++) {
+  grid.innerHTML += `<div class="day empty"></div>`;
+ }
+
+ for (let d=1; d<=totalDays; d++) {
+  const date = new Date(year,month,d);
+  const tasks = getDayActivities(date);
+  const selected = selectedDate && dateKey(date)===dateKey(selectedDate);
+  const today = dateKey(date)===dateKey(new Date());
+
+  let dots = tasks.map(t=>`<i class="dot ${t.type}"></i>`).join("");
+
+  grid.innerHTML += `
+   <div class="day ${selected?"selected":""} ${today?"today":""}"
+        onclick="selectDay(${year},${month},${d})">
+      <div class="day-number">${d}</div>
+      <div class="dots">${dots}</div>
+   </div>`;
+ }
+}
+
+function selectDay(year,month,day) {
+ selectedDate = new Date(year,month,day);
+ renderCalendar();
+ showTasks(selectedDate);
+}
+
+function showTasks(date) {
+ const panel = document.getElementById("taskPanel");
+ const tasks = getDayActivities(date);
+ const key = dateKey(date);
+
+ let html = `<h3>📌 Activities for ${date.toLocaleDateString("en",{day:"numeric",month:"long",year:"numeric"})}</h3>
+ <p class="task-date">${plantingDate ? "Crop day "+Math.floor((date-plantingDate)/86400000) : "Select a planting date first"}</p>`;
+
+ if (!plantingDate) {
+  html += "<p>Please select your planting date and create your calendar.</p>";
+ } else if (tasks.length===0) {
+  html += "<p style='color:#718075;font-size:14px'>No scheduled activity for this date. Continue observing your crop regularly.</p>";
+ } else {
+  tasks.forEach((task,i) => {
+   const id = key+"-"+i;
+   const done = !!completedTasks[id];
+
+   html += `<label class="task ${done?"done":""}">
+     <input type="checkbox" ${done?"checked":""} onchange="toggleTask('${id}',this.checked)">
+     <span>
+       <strong>${task.title}</strong>
+       <small>${task.desc}</small>
+     </span>
+   </label>`;
+  });
+ }
+
+ panel.innerHTML = html;
+ updateProgress();
+}
+
+async function saveCalendarData() {
+ if (!plantingDate) return;
+
+ const dateValue =
+     plantingDate.getFullYear()+"-"+
+     String(plantingDate.getMonth()+1).padStart(2,"0")+"-"+
+     String(plantingDate.getDate()).padStart(2,"0");
+
+ try {
+    const response = await fetch("{{ url_for('save_crop_calendar') }}", {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+            planting_date: dateValue,
+            completed_tasks: completedTasks
+        })
+    });
+
+    const result = await response.json();
+
+    if (!response.ok || !result.success) {
+        throw new Error(result.message || "Save failed");
+    }
+
+    console.log("Calendar progress saved successfully.");
+
+ } catch (error) {
+    console.error("Calendar save error:", error);
+    alert("Calendar progress could not be saved. Please try again.");
+ }
+}
+
+function toggleTask(id,checked) {
+ completedTasks[id] = checked;
+
+ if (selectedDate) showTasks(selectedDate);
+
+ saveCalendarData();
+}
+
+function updateProgress() {
+ const total = Object.keys(completedTasks).length;
+ const done = Object.values(completedTasks).filter(Boolean).length;
+
+ document.getElementById("progressText").textContent =
+ done+" of "+total+" marked tasks completed";
+
+ document.getElementById("progressFill").style.width =
+ (total ? (done/total)*100 : 0)+"%";
+}
+
+async function generateCalendar() {
+ const value = document.getElementById("plantingDate").value;
+
+ if (!value) {
+  alert("Please select your planting date.");
+  return;
+ }
+
+ plantingDate = new Date(value+"T00:00:00");
+ currentMonth = new Date(plantingDate.getFullYear(),plantingDate.getMonth(),1);
+ selectedDate = new Date(plantingDate);
+
+ renderCalendar();
+ showTasks(selectedDate);
+
+ await saveCalendarData();
+}
+
+function changeMonth(amount) {
+ currentMonth = new Date(
+  currentMonth.getFullYear(),
+  currentMonth.getMonth()+amount,
+  1
+ );
+ renderCalendar();
+}
+
+if (plantingDate) {
+ document.getElementById("plantingDate").value = savedPlantingDate;
+ renderCalendar();
+ showTasks(selectedDate);
+} else {
+ renderCalendar();
+ updateProgress();
+}
+</script>
+
+
+</body>
+</html>

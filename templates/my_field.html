@@ -1,0 +1,271 @@
+
+<!DOCTYPE html>
+<html lang="{{ current_language }}">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Field | AgriCare AI</title>
+
+    <link rel="stylesheet"
+          href="{{ url_for('static', filename='css/style.css') }}">
+
+    <style>
+        .field-page {
+            max-width: 1100px;
+            margin: 35px auto;
+            padding: 25px;
+        }
+
+        .field-header {
+            background: linear-gradient(135deg, #14532d, #3b9b55);
+            color: white;
+            padding: 30px;
+            border-radius: 18px;
+            margin-bottom: 25px;
+        }
+
+        .field-header h1 {
+            margin: 0 0 10px;
+        }
+
+        .field-card {
+            background: white;
+            padding: 28px;
+            border-radius: 16px;
+            box-shadow: 0 5px 22px rgba(0,0,0,0.08);
+            margin-bottom: 25px;
+        }
+
+        .field-form {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 18px;
+        }
+
+        .field-form label {
+            display: block;
+            font-weight: 600;
+            color: #285c37;
+            margin-bottom: 7px;
+        }
+
+        .field-form input,
+        .field-form select {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #d5e3d7;
+            border-radius: 9px;
+            box-sizing: border-box;
+            font-size: 14px;
+        }
+
+        .full-width {
+            grid-column: 1 / -1;
+        }
+
+        .save-btn {
+            background: #237b3b;
+            color: white;
+            border: none;
+            padding: 13px 25px;
+            border-radius: 9px;
+            font-weight: 600;
+            cursor: pointer;
+        }
+
+        .saved-field {
+            border: 1px solid #dcebdd;
+            padding: 20px;
+            border-radius: 12px;
+            margin-top: 15px;
+        }
+
+        .saved-field h3 {
+            color: #237b3b;
+            margin-top: 0;
+        }
+
+        .field-details {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 12px;
+        }
+
+        .field-details p {
+            margin: 5px 0;
+            color: #555;
+        }
+
+        .back-btn {
+            display: inline-block;
+            text-decoration: none;
+            color: #237b3b;
+            font-weight: 600;
+            margin-bottom: 20px;
+        }
+
+        .flash-message {
+            background: #e5f7e9;
+            color: #17652b;
+            padding: 12px;
+            border-radius: 8px;
+            margin-bottom: 15px;
+        }
+
+        @media(max-width:650px) {
+            .field-form,
+            .field-details {
+                grid-template-columns: 1fr;
+            }
+
+            .field-page {
+                padding: 15px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+<div class="field-page">
+
+    <a href="{{ url_for('dashboard') }}" class="back-btn">
+        ← Back to Dashboard
+    </a>
+
+    <section class="field-header">
+        <h1>🌾 My Field</h1>
+        <p>Manage your farm details in one place.</p>
+        <p>ನಿಮ್ಮ ಹೊಲದ ಸಂಪೂರ್ಣ ವಿವರಗಳನ್ನು ಇಲ್ಲಿ ನಿರ್ವಹಿಸಿ.</p>
+    </section>
+
+    {% with messages = get_flashed_messages() %}
+        {% for message in messages %}
+            <div class="flash-message">{{ message }}</div>
+        {% endfor %}
+    {% endwith %}
+
+    <section class="field-card">
+        <h2>➕ Add Your Farm Details</h2>
+
+        <form method="POST" class="field-form">
+
+            <div>
+                <label>Field Name *</label>
+                <input type="text" name="field_name"
+                       placeholder="Example: My Pomegranate Farm"
+                       required>
+            </div>
+
+            <div>
+                <label>Farm Location *</label>
+                <input type="text" name="location"
+                       placeholder="Village / Taluk / District"
+                       required>
+            </div>
+
+            <div>
+                <label>Land Area (Acres) *</label>
+                <input type="number" name="land_area"
+                       min="0.01" step="0.01"
+                       placeholder="Example: 2.5" required>
+            </div>
+
+            <div>
+                <label>Crop Name</label>
+                <select name="crop_name">
+                    <option value="Pomegranate">Pomegranate</option>
+                    <option value="Other">Other</option>
+                </select>
+            </div>
+
+            <div>
+                <label>Pomegranate Variety</label>
+                <select name="variety">
+                    <option value="">Select variety</option>
+                    <option value="Bhagwa">Bhagwa</option>
+                    <option value="Ganesh">Ganesh</option>
+                    <option value="Arakta">Arakta</option>
+                    <option value="Other">Other</option>
+                </select>
+            </div>
+
+            <div>
+                <label>Planting Date</label>
+                <input type="date" name="planting_date">
+            </div>
+
+            <div>
+                <label>Soil Type</label>
+                <select name="soil_type">
+                    <option value="">Select soil type</option>
+                    <option value="Black Soil">Black Soil</option>
+                    <option value="Red Soil">Red Soil</option>
+                    <option value="Sandy Soil">Sandy Soil</option>
+                    <option value="Loamy Soil">Loamy Soil</option>
+                    <option value="Other">Other</option>
+                </select>
+            </div>
+
+            <div>
+                <label>Irrigation Type</label>
+                <select name="irrigation_type">
+                    <option value="">Select irrigation type</option>
+                    <option value="Drip Irrigation">Drip Irrigation</option>
+                    <option value="Sprinkler">Sprinkler</option>
+                    <option value="Flood Irrigation">Flood Irrigation</option>
+                    <option value="Other">Other</option>
+                </select>
+            </div>
+
+            <div class="full-width">
+                <button type="submit" class="save-btn">
+                    💾 Save Farm Details
+                </button>
+            </div>
+
+        </form>
+    </section>
+
+   
+<section class="field-card">
+    <h2>📋 My Saved Fields</h2>
+
+    {% if fields %}
+        {% for field in fields %}
+            <div class="saved-field">
+                <h3>🌱 {{ field.field_name }}</h3>
+
+                <div class="field-details">
+                    <p>📍 Location: {{ field.location }}</p>
+                    <p>📐 Land Area: {{ field.land_area }} Acres</p>
+                    <p>🌾 Crop: {{ field.crop_name }}</p>
+                    <p>🍎 Variety: {{ field.variety or 'Not specified' }}</p>
+                    <p>🌱 Soil: {{ field.soil_type or 'Not specified' }}</p>
+                    <p>💧 Irrigation: {{ field.irrigation_type or 'Not specified' }}</p>
+                    <p>📅 Planting Date: {{ field.planting_date or 'Not specified' }}</p>
+                </div>
+
+                <div class="field-actions">
+                    <a href="{{ url_for('edit_field', field_id=field.id) }}"
+                       class="btn-edit">✏️ Edit</a>
+
+                    <form method="POST"
+                          action="{{ url_for('delete_field', field_id=field.id) }}"
+                          onsubmit="return confirm('Are you sure you want to delete this field?');">
+                        <button type="submit" class="btn-delete">
+                            🗑️ Delete
+                        </button>
+                    </form>
+                </div>
+            </div>
+        {% endfor %}
+    {% else %}
+        <p>No farm details added yet. Add your first field above.</p>
+    {% endif %}
+</section>
+
+</div>
+
+</body>
+</html>

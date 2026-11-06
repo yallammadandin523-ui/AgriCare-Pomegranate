@@ -1,0 +1,1151 @@
+
+<!DOCTYPE html>
+<html lang="{{ 'kn' if current_language == 'kn' else 'en' }}">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AgriCare AI | Dashboard</title>
+
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+
+    <style>
+        /* WEATHER */
+
+        .weather-metrics {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 12px;
+            margin: 18px 0;
+        }
+
+        .weather-metric {
+            background: #effaf2;
+            border-radius: 12px;
+            padding: 15px;
+            text-align: center;
+        }
+
+        .weather-metric h4 {
+            font-size: 13px;
+            color: #55715e;
+            margin-bottom: 8px;
+        }
+
+        .weather-metric strong {
+            font-size: 21px;
+            color: #16834a;
+        }
+
+        .weather-location {
+            font-size: 13px;
+            color: #55715e;
+            margin-top: 10px;
+            word-break: break-word;
+        }
+
+        .weather-message {
+            font-size: 12px;
+            margin: 10px 0;
+            color: #16834a;
+        }
+
+        .weather-refresh {
+            border: none;
+            background: #16834a;
+            color: white;
+            padding: 11px 18px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            margin-top: 8px;
+        }
+
+        .weather-refresh:hover {
+            background: #106b3b;
+        }
+
+        /* EARLY WARNING */
+
+        .warning-card {
+            min-width: 0;
+        }
+
+        .warning-display {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            margin: 18px 0;
+        }
+
+        .warning-symbol {
+            width: 55px;
+            height: 55px;
+            min-width: 55px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: #effaf2;
+            border-radius: 14px;
+            font-size: 27px;
+        }
+
+        .warning-display h3 {
+            margin: 0 0 5px;
+        }
+
+        .warning-display p {
+            margin: 0;
+            font-size: 13px;
+            color: #667568;
+        }
+
+        .warning-list {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            margin-top: 18px;
+        }
+
+        .weather-alert {
+            padding: 14px;
+            border-radius: 12px;
+            border-left: 4px solid #d99b22;
+            background: #fff8e8;
+        }
+
+        .weather-alert.high {
+            border-left-color: #dc4444;
+            background: #fff0f0;
+        }
+
+        .weather-alert.moderate {
+            border-left-color: #d99b22;
+            background: #fff8e8;
+        }
+
+        .weather-alert.safe {
+            border-left-color: #16834a;
+            background: #effaf2;
+        }
+
+        .weather-alert h4 {
+            margin: 0 0 7px;
+            font-size: 14px;
+            color: #263b2b;
+        }
+
+        .weather-alert p {
+            margin: 0;
+            font-size: 13px;
+            line-height: 1.6;
+            color: #526357;
+        }
+
+        .warning-loading {
+            color: #16834a;
+            font-size: 13px;
+            margin: 12px 0;
+        }
+
+        .warning-error {
+            color: #c0392b;
+            font-size: 13px;
+            margin: 12px 0;
+        }
+
+        .warning-updated {
+            color: #16834a;
+            font-size: 11px;
+            margin-top: 14px;
+        }
+
+        /* CROP PROTECTION RECOMMENDATIONS */
+
+        .recommendation-panel {
+            margin-top: 14px;
+            padding: 13px;
+            background: rgba(255, 255, 255, 0.85);
+            border: 1px solid #e2e9e2;
+            border-radius: 10px;
+        }
+
+        .recommendation-panel h5 {
+            margin: 0 0 10px;
+            color: #16834a;
+            font-size: 13px;
+        }
+
+        .recommendation-panel ul {
+            margin: 0;
+            padding-left: 20px;
+        }
+
+        .recommendation-panel li {
+            margin-bottom: 8px;
+            color: #46594b;
+            font-size: 12px;
+            line-height: 1.6;
+        }
+
+        .recommendation-panel li:last-child {
+            margin-bottom: 0;
+        }
+
+        /* PROFESSIONAL PEST MONITORING */
+
+        .pest-card {
+            background: linear-gradient(145deg, #ffffff, #f0faf3);
+            border: 1px solid #dcefe1;
+            border-radius: 18px;
+            padding: 24px;
+            box-shadow: 0 5px 18px rgba(25, 90, 45, 0.07);
+            transition: all 0.3s ease;
+            min-width: 0;
+        }
+
+        .pest-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 10px 25px rgba(25, 90, 45, 0.13);
+        }
+
+        .pest-card-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 22px;
+        }
+
+        .pest-icon-box {
+            width: 55px;
+            height: 55px;
+            background: #e0f4e5;
+            border-radius: 15px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 29px;
+        }
+
+        .pest-status {
+            background: #e4f5e8;
+            color: #238343;
+            padding: 7px 12px;
+            border-radius: 20px;
+            font-size: 11px;
+            font-weight: 600;
+        }
+
+        .pest-card-content h3 {
+            color: #203d2b;
+            font-size: 20px;
+            margin-bottom: 10px;
+        }
+
+        .pest-card-content p {
+            color: #718078;
+            font-size: 14px;
+            line-height: 1.7;
+            margin-bottom: 22px;
+        }
+
+        .pest-card-footer {
+            border-top: 1px solid #e2eee5;
+            padding-top: 17px;
+            display: flex;
+            flex-direction: column;
+            gap: 14px;
+        }
+
+        .pest-card-footer > span {
+            color: #829087;
+            font-size: 12px;
+        }
+
+        .pest-identify-btn {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            text-decoration: none;
+            background: #238747;
+            color: white !important;
+            padding: 13px 17px;
+            border-radius: 10px;
+            font-size: 14px;
+            font-weight: 600;
+            transition: 0.3s;
+            position: relative;
+            z-index: 10;
+            cursor: pointer;
+        }
+
+        .pest-identify-btn:hover {
+            background: #176b35;
+            color: white !important;
+        }
+
+        .pest-identify-btn span {
+            font-size: 20px;
+        }
+
+        @media(max-width: 600px) {
+            .weather-metrics {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .pest-card {
+                padding: 18px;
+            }
+        }
+    </style>
+</head>
+
+<body class="dashboard-body">
+
+<div class="dashboard-layout">
+
+    <!-- SIDEBAR -->
+
+    <aside class="sidebar">
+
+        <div class="brand">
+            <div class="brand-icon">🌿</div>
+            <div>
+                <h2>AgriCare AI</h2>
+                <small>DETECT • MONITOR • PROTECT</small>
+            </div>
+        </div>
+
+        <p class="nav-heading">{{ t('main_menu') }}</p>
+
+        <nav class="sidebar-menu">
+
+            <a href="{{ url_for('dashboard') }}" class="menu-item active">
+                <span>⌂</span> {{ t('dashboard') }}
+            </a>
+
+            <a href="#" class="menu-item">
+                <span>▦</span> {{ t('crop_calendar') }}
+            </a>
+
+            <a href="{{ url_for('disease_detection') }}" class="menu-item">
+                <span>🌿</span> {{ t('disease_detection') }}
+            </a>
+            <a href="{{ url_for('pest_detection') }}" class="menu-item">
+    <span>🐛</span> {{ t('pest_identification') }}
+</a>
+<a href="{{ url_for('history') }}">Analysis History</a>
+
+            <a href="#weather-section" class="menu-item">
+                <span>🌦</span> {{ t('weather_location') }}
+            </a>
+
+            <a href="#early-warning" class="menu-item">
+                <span>⚠</span> {{ t('early_warning') }}
+            </a>
+
+            <a href="{{ url_for('my_field') }}" class="menu-item">
+    <span>🌾</span> {{ t('my_fields') }}
+</a>
+<a href="{{ url_for('voice_assistant') }}" class="menu-item">
+    <span>🎙</span> {{ t('voice_assistant') }}
+</a>
+
+          <a href="{{ url_for('reports') }}" class="menu-item">
+    <span>▤</span> {{ t('reports') }}
+</a>
+        </nav>
+
+        <div class="sidebar-bottom">
+
+            <a href="#" class="menu-item">
+                <span>⚙</span> {{ t('settings') }}
+            </a>
+
+            <a href="{{ url_for('logout') }}" class="menu-item logout-link">
+                <span>↪</span> {{ t('logout') }}
+            </a>
+
+        </div>
+
+    </aside>
+
+
+    <!-- MAIN CONTENT -->
+
+    <main class="main-content">
+
+        <!-- TOPBAR -->
+
+        <header class="topbar">
+
+            <div>
+                <p class="top-label">{{ t('overview') }}</p>
+                <h2>{{ t('dashboard') }}</h2>
+                <p class="header-subtitle">{{ t('welcome') }}</p>
+            </div>
+
+            <div class="top-actions">
+
+                <form action="{{ url_for('set_language') }}"
+                      method="POST"
+                      style="display:flex;align-items:center;gap:7px;">
+
+                    <input type="hidden" name="next" value="{{ request.path }}">
+
+                    <span>🌐</span>
+
+                    <select name="language"
+                            onchange="this.form.submit()"
+                            aria-label="Select language"
+                            style="padding:10px;border:1px solid #dce5dd;border-radius:8px;background:white;cursor:pointer;">
+
+                        <option value="en" {% if current_language == 'en' %}selected{% endif %}>
+                            English
+                        </option>
+
+                        <option value="kn" {% if current_language == 'kn' %}selected{% endif %}>
+                            ಕನ್ನಡ
+                        </option>
+
+                    </select>
+                </form>
+
+                <button class="speak-button">🎙 {{ t('speak') }}</button>
+
+                <button class="notification-button" title="Notifications">♧</button>
+
+                <div class="user-avatar">
+                    {{ user_name[0] if user_name else 'U' }}
+                </div>
+
+                <div class="user-info">
+                    <strong>{{ user_name }}</strong>
+                    <small>{{ t('farmer_account') }}</small>
+                </div>
+
+            </div>
+
+        </header>
+
+
+        <!-- HERO BANNER -->
+
+        <section class="hero-banner">
+
+            <div class="hero-content">
+
+                <span class="hero-tag">🌱 {{ t('smart_platform') }}</span>
+
+                <h1>
+                    {% if current_language == 'kn' %}
+                        ಸಮೃದ್ಧ ಫಸಲಿಗಾಗಿ<br>ಸ್ಮಾರ್ಟ್ ಬೆಳೆ ಆರೋಗ್ಯ
+                    {% else %}
+                        Smart Crop Health<br>for a Prosperous Harvest
+                    {% endif %}
+                </h1>
+
+                <p>{{ t('hero_subtitle') }}</p>
+
+                <a href="{{ url_for('disease_detection') }}" class="primary-button">
+                    {{ t('start_monitoring') }} <span>→</span>
+                </a>
+
+            </div>
+
+            <div class="hero-farmer">
+                <div class="farmer-circle">👨‍🌾</div>
+                <div class="farm-label">{{ t('farm_partner') }}</div>
+            </div>
+
+        </section>
+
+
+        <!-- FEATURE SHORTCUTS -->
+
+        <section class="feature-shortcuts">
+
+            <a href="{{ url_for('disease_detection') }}" class="shortcut-card">
+
+                <div class="shortcut-icon green-icon">🌿</div>
+
+                <div>
+                    <h3>{{ t('disease_detection') }}</h3>
+                    <p>{{ t('identify_early') }}</p>
+                </div>
+
+            </a>
+
+            <a href="#weather-section" class="shortcut-card">
+
+                <div class="shortcut-icon calendar-icon">🌦️</div>
+
+                <div>
+                    <h3>{{ t('weather_monitoring') }}</h3>
+                    <p>{{ t('temperature_humidity') }}</p>
+                </div>
+
+            </a>
+
+            <a href="#early-warning" class="shortcut-card">
+
+                <div class="shortcut-icon blue-icon">⚠️</div>
+
+                <div>
+                    <h3>{{ t('early_warning') }}</h3>
+                    <p>{{ t('prevent_diseases') }}</p>
+                </div>
+
+            </a>
+
+        </section>
+
+
+        <!-- FARM OVERVIEW -->
+
+        <h2 class="section-title">{{ t('farm_overview') }}</h2>
+
+        <section class="overview-grid">
+
+            <!-- CROP HEALTH -->
+
+            <div class="overview-card health-card">
+
+                <h3>{{ t('crop_health') }}</h3>
+
+                <div class="health-content">
+
+                    <div class="health-circle">
+                        <span>🌿</span>
+                        <strong>--</strong>
+                        <small>{{ t('health_status') }}</small>
+                    </div>
+
+                    <div class="crop-list">
+                        <p>🌱 {{ t('crop_monitoring') }}</p>
+                        <p>🔬 {{ t('disease_analysis') }}</p>
+                        <p>🐛 {{ t('pest_monitoring') }}</p>
+                    </div>
+
+                </div>
+
+                <p class="info-note">{{ t('upload_crop_images') }}</p>
+
+            </div>
+
+
+            <!-- LIVE WEATHER -->
+
+            <div class="overview-card weather-card" id="weather-section">
+
+                <h3>{{ t('weather_location') }}</h3>
+
+                <div class="weather-display">
+
+                    <div class="weather-symbol">🌤️</div>
+
+                    <div>
+                        <h2 id="temperature">-- °C</h2>
+                        <p>{{ t('temperature') }}</p>
+                    </div>
+
+                </div>
+
+                <p class="weather-location" id="farmer-location">
+                    📍 {% if current_language == 'kn' %}
+                    ಸ್ಥಳ ಅನುಮತಿಗಾಗಿ ಕಾಯಲಾಗುತ್ತಿದೆ...
+                    {% else %}
+                    Awaiting location permission...
+                    {% endif %}
+                </p>
+
+                <div class="weather-metrics">
+
+                    <div class="weather-metric">
+                        <h4>💧 {{ t('humidity') }}</h4>
+                        <strong id="humidity">-- %</strong>
+                    </div>
+
+                    <div class="weather-metric">
+                        <h4>🌧️ {% if current_language == 'kn' %}ಮಳೆ{% else %}Rainfall{% endif %}</h4>
+                        <strong id="rainfall">-- mm</strong>
+                    </div>
+
+                    <div class="weather-metric">
+                        <h4>💨 {% if current_language == 'kn' %}ಗಾಳಿಯ ವೇಗ{% else %}Wind Speed{% endif %}</h4>
+                        <strong id="wind-speed">-- km/h</strong>
+                    </div>
+
+                    <div class="weather-metric">
+                        <h4>🌡️ {% if current_language == 'kn' %}ತಾಪಮಾನ{% else %}Temperature{% endif %}</h4>
+                        <strong id="temperature-small">-- °C</strong>
+                    </div>
+
+                </div>
+
+                <p class="weather-message" id="weather-message"></p>
+
+                <button type="button"
+                        class="weather-refresh"
+                        onclick="getFarmerWeather()">
+
+                    {% if current_language == 'kn' %}
+                        ಹವಾಮಾನ ಪರಿಶೀಲಿಸಿ →
+                    {% else %}
+                        Check Weather →
+                    {% endif %}
+
+                </button>
+
+            </div>
+
+
+            <!-- EARLY WARNING CENTRE -->
+
+            <div class="overview-card warning-card" id="early-warning">
+
+                <h3>{{ t('early_warning_centre') }}</h3>
+
+                <div class="warning-display">
+
+                    <div class="warning-symbol">🛡️</div>
+
+                    <div>
+                        <h3>
+                            {% if current_language == 'kn' %}
+                                ಬೆಳೆ ರಕ್ಷಣಾ ಕೇಂದ್ರ
+                            {% else %}
+                                Crop Protection Centre
+                            {% endif %}
+                        </h3>
+
+                        <p>
+                            {% if current_language == 'kn' %}
+                                ನಿಮ್ಮ ಸ್ಥಳದ ಹವಾಮಾನ ಆಧಾರಿತ ಮುನ್ನೆಚ್ಚರಿಕೆಗಳು
+                            {% else %}
+                                Weather-based alerts for your location
+                            {% endif %}
+                        </p>
+                    </div>
+
+                </div>
+
+                <div id="warning-loading" class="warning-loading">
+                    {% if current_language == 'kn' %}
+                        ⚙️ ಎಚ್ಚರಿಕೆಗಳನ್ನು ಪರಿಶೀಲಿಸಲಾಗುತ್ತಿದೆ...
+                    {% else %}
+                        ⚙️ Checking weather alerts...
+                    {% endif %}
+                </div>
+
+                <div id="warning-list" class="warning-list"></div>
+
+                <p id="warning-updated" class="warning-updated"></p>
+
+            </div>
+
+        </section>
+
+
+        <!-- SECONDARY GRID -->
+
+        <section class="overview-grid secondary-grid">
+
+            <!-- CROP GROWTH -->
+
+            <div class="overview-card growth-card">
+
+                <h3>{{ t('crop_growth') }}</h3>
+
+                <div class="growth-content">
+
+                    <div class="growth-image">🌱</div>
+
+                    <div>
+                        <h3>{{ t('monitor_crop') }}</h3>
+                        <p>{{ t('growth_message') }}</p>
+
+                       <a href="{{ url_for('crop_growth_calendar') }}" class="small-button">
+    {{ t('view_details') }} →
+</a>
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <!-- UPCOMING CHECK -->
+
+
+<div class="overview-card check-card inspection-card">
+
+    <div class="inspection-header">
+        <div class="check-icon">📅</div>
+
+        <span class="inspection-badge">
+            {% if current_language == 'kn' %}
+                ದೈನಂದಿನ ಪರಿಶೀಲನೆ
+            {% else %}
+                Daily Reminder
+            {% endif %}
+        </span>
+    </div>
+
+    <h3>{{ t('upcoming_check') }}</h3>
+
+    <div class="check-content">
+        <div>
+            <h3>{{ t('field_inspection') }}</h3>
+
+            <p>{{ t('inspection_message') }}</p>
+
+            <a href="{{ url_for('crop_check') }}"
+               class="small-button inspection-btn">
+                {{ t('check_today') }} →
+            </a>
+        </div>
+    </div>
+
+</div>
+
+
+
+
+            <!-- SINGLE PROFESSIONAL PEST MONITORING CARD -->
+
+            <div class="overview-card pest-card">
+
+                <div class="pest-card-header">
+
+                    <div class="pest-icon-box">
+                        <span>🐛</span>
+                    </div>
+
+                    <span class="pest-status">
+                        {% if current_language == 'kn' %}
+                            ಬೆಳೆ ರಕ್ಷಣೆ
+                        {% else %}
+                            Crop Protection
+                        {% endif %}
+                    </span>
+
+                </div>
+
+                <div class="pest-card-content">
+
+                    <h3>{{ t('pest_monitoring') }}</h3>
+
+                    <p>
+                        {{ t('pest_message') }}
+                    </p>
+
+                </div>
+
+                <div class="pest-card-footer">
+
+                    <span>
+                        {% if current_language == 'kn' %}
+                            ಕೀಟ ಗುರುತಿಸುವಿಕೆ
+                        {% else %}
+                            Pest Identification
+                        {% endif %}
+                    </span>
+
+                    <a href="{{ url_for('pest_detection') }}"
+                       class="pest-identify-btn">
+
+                        {{ t('identify_pest') }}
+
+                        <span>→</span>
+
+                    </a>
+
+                </div>
+
+            </div>
+
+        </section>
+
+
+        <!-- QUICK ACTIONS -->
+
+        <section class="bottom-grid">
+
+            <div class="quick-actions-card">
+
+                <h3>{{ t('quick_actions') }}</h3>
+
+                <div class="quick-actions">
+
+                    <a href="{{ url_for('disease_detection') }}" class="quick-action">
+                        <span class="quick-icon">📷</span>
+                        <strong>{{ t('upload_image') }}</strong>
+                    </a>
+
+                    <a href="#weather-section" class="quick-action">
+                        <span class="quick-icon">🌦️</span>
+                        <strong>{{ t('weather') }}</strong>
+                    </a>
+
+                    <a href="#" class="quick-action">
+                        <span class="quick-icon">📊</span>
+                        <strong>{{ t('view_reports') }}</strong>
+                    </a>
+
+                </div>
+
+            </div>
+
+
+            <!-- CROP TIPS -->
+
+            <div class="crop-tips-card">
+
+                <div class="tips-icon">🌿</div>
+
+                <div>
+                    <h3>{{ t('crop_tips') }}</h3>
+                    <p>{{ t('tips_message') }}</p>
+                    <a href="#">{{ t('learn_more') }} →</a>
+                </div>
+
+            </div>
+
+        </section>
+
+
+        <!-- FOOTER -->
+
+        <footer class="dashboard-footer">
+            © 2026 AgriCare AI | {{ t('footer') }}
+        </footer>
+
+    </main>
+
+</div>
+
+
+<!-- WEATHER AND EARLY WARNING JAVASCRIPT -->
+
+<script>
+
+const isKannada = "{{ current_language }}" === "kn";
+
+
+/* LOAD EARLY WARNING ALERTS */
+
+async function loadWeatherRisk(lat, lon) {
+
+    const warningList = document.getElementById("warning-list");
+    const warningLoading = document.getElementById("warning-loading");
+    const warningUpdated = document.getElementById("warning-updated");
+
+    warningList.innerHTML = "";
+
+    warningLoading.style.display = "block";
+    warningUpdated.innerText = "";
+
+    warningLoading.innerText = isKannada
+        ? "⚙️ ಹವಾಮಾನ ಅಪಾಯಗಳನ್ನು ಪರಿಶೀಲಿಸಲಾಗುತ್ತಿದೆ..."
+        : "⚙️ Checking weather risks...";
+
+    try {
+
+        const response = await fetch(
+            `/weather_risk?lat=${encodeURIComponent(lat)}&lon=${encodeURIComponent(lon)}`
+        );
+
+        const data = await response.json();
+
+        if (!response.ok || data.error) {
+            throw new Error(data.error || "Unable to load alerts");
+        }
+
+        warningLoading.style.display = "none";
+
+        if (!data.alerts || data.alerts.length === 0) {
+
+            showSafeMessage();
+
+        } else {
+
+            data.alerts.forEach(function(alert) {
+
+                const alertBox = document.createElement("div");
+
+                const alertType = ["high", "moderate"].includes(alert.type)
+                    ? alert.type
+                    : "safe";
+
+                alertBox.className = "weather-alert " + alertType;
+
+                const alertTitle = document.createElement("h4");
+
+                alertTitle.textContent = isKannada
+                    ? alert.title_kn
+                    : alert.title_en;
+
+                const alertMessage = document.createElement("p");
+
+                alertMessage.textContent = isKannada
+                    ? alert.message_kn
+                    : alert.message_en;
+
+                alertBox.appendChild(alertTitle);
+                alertBox.appendChild(alertMessage);
+
+                const recommendations = isKannada
+                    ? alert.recommendation_kn
+                    : alert.recommendation_en;
+
+                if (Array.isArray(recommendations) && recommendations.length > 0) {
+
+                    const recommendationPanel = document.createElement("div");
+                    recommendationPanel.className = "recommendation-panel";
+
+                    const recommendationTitle = document.createElement("h5");
+
+                    recommendationTitle.textContent = isKannada
+                        ? (alert.recommendation_title_kn || "ಬೆಳೆ ರಕ್ಷಣೆಯ ಸಲಹೆಗಳು")
+                        : (alert.recommendation_title_en || "Crop Protection Recommendations");
+
+                    const recommendationList = document.createElement("ul");
+
+                    recommendations.forEach(function(item) {
+
+                        const listItem = document.createElement("li");
+                        listItem.textContent = item;
+
+                        recommendationList.appendChild(listItem);
+
+                    });
+
+                    recommendationPanel.appendChild(recommendationTitle);
+                    recommendationPanel.appendChild(recommendationList);
+
+                    alertBox.appendChild(recommendationPanel);
+                }
+
+                warningList.appendChild(alertBox);
+
+            });
+
+        }
+
+        warningUpdated.innerText = isKannada
+            ? "✓ ಹವಾಮಾನ ಪರಿಶೀಲನೆ ಪೂರ್ಣಗೊಂಡಿದೆ"
+            : "✓ Weather risk check completed";
+
+    }
+
+    catch(error) {
+
+        warningLoading.style.display = "none";
+
+        warningList.innerHTML = "";
+
+        const errorBox = document.createElement("div");
+        errorBox.className = "weather-alert moderate";
+
+        const errorTitle = document.createElement("h4");
+        const errorMessage = document.createElement("p");
+
+        errorTitle.innerText = isKannada
+            ? "ಎಚ್ಚರಿಕೆ ಮಾಹಿತಿ ಲಭ್ಯವಿಲ್ಲ"
+            : "Alert information unavailable";
+
+        errorMessage.innerText = isKannada
+            ? "ದಯವಿಟ್ಟು ಮತ್ತೆ ಹವಾಮಾನ ಪರಿಶೀಲಿಸಿ."
+            : "Please check the weather again.";
+
+        errorBox.appendChild(errorTitle);
+        errorBox.appendChild(errorMessage);
+
+        warningList.appendChild(errorBox);
+
+        console.error("Weather Risk API Error:", error);
+
+    }
+
+}
+
+
+/* SAFE WEATHER MESSAGE */
+
+function showSafeMessage() {
+
+    const warningList = document.getElementById("warning-list");
+
+    const safeBox = document.createElement("div");
+    safeBox.className = "weather-alert safe";
+
+    const safeTitle = document.createElement("h4");
+    const safeMessage = document.createElement("p");
+
+    safeTitle.innerText = isKannada
+        ? "✓ ಪ್ರಸ್ತುತ ಯಾವುದೇ ಪ್ರಮುಖ ಹವಾಮಾನ ಎಚ್ಚರಿಕೆ ಇಲ್ಲ"
+        : "✓ No major weather warning at present";
+
+    safeMessage.innerText = isKannada
+        ? "ನಿಮ್ಮ ದಾಳಿಂಬೆ ಗಿಡಗಳನ್ನು ನಿಯಮಿತವಾಗಿ ಪರಿಶೀಲಿಸಿ."
+        : "Continue monitoring your pomegranate plants regularly.";
+
+    safeBox.appendChild(safeTitle);
+    safeBox.appendChild(safeMessage);
+
+    warningList.appendChild(safeBox);
+
+}
+
+
+/* GET FARMER WEATHER */
+
+function getFarmerWeather() {
+
+    const locationText = document.getElementById("farmer-location");
+    const message = document.getElementById("weather-message");
+
+    const temperature = document.getElementById("temperature");
+    const temperatureSmall = document.getElementById("temperature-small");
+    const humidity = document.getElementById("humidity");
+    const rainfall = document.getElementById("rainfall");
+    const windSpeed = document.getElementById("wind-speed");
+
+    if (!navigator.geolocation) {
+
+        locationText.innerText = isKannada
+            ? "ಈ ಬ್ರೌಸರ್‌ನಲ್ಲಿ ಸ್ಥಳ ಪತ್ತೆಹಚ್ಚಲು ಸಾಧ್ಯವಿಲ್ಲ."
+            : "Geolocation is not supported by this browser.";
+
+        return;
+    }
+
+    locationText.innerText = isKannada
+        ? "ಸ್ಥಳ ಪತ್ತೆಹಚ್ಚಲಾಗುತ್ತಿದೆ..."
+        : "Detecting your location...";
+
+    message.innerText = isKannada
+        ? "ದಯವಿಟ್ಟು ಕಾಯಿರಿ..."
+        : "Please wait...";
+
+    navigator.geolocation.getCurrentPosition(
+
+        async function(position) {
+
+            const lat = position.coords.latitude;
+            const lon = position.coords.longitude;
+
+            locationText.innerText = isKannada
+                ? "📍 ನಿಮ್ಮ ಸ್ಥಳ ಪತ್ತೆಯಾಗಿದೆ"
+                : "📍 Your location detected successfully";
+
+            try {
+
+                const response = await fetch(
+                    `/get_weather?lat=${lat}&lon=${lon}`
+                );
+
+                const data = await response.json();
+
+                if (!response.ok || data.error) {
+                    throw new Error(
+                        data.error || "Weather data unavailable"
+                    );
+                }
+
+                temperature.innerText =
+                    data.temperature + " °C";
+
+                temperatureSmall.innerText =
+                    data.temperature + " °C";
+
+                humidity.innerText =
+                    data.humidity + " %";
+
+                rainfall.innerText =
+                    data.rainfall + " mm";
+
+                windSpeed.innerText =
+                    data.wind_speed + " km/h";
+
+                message.innerText = isKannada
+                    ? "ಹವಾಮಾನದ ಮಾಹಿತಿ ಯಶಸ್ವಿಯಾಗಿ ನವೀಕರಿಸಲಾಗಿದೆ!"
+                    : "Live weather updated successfully!";
+
+                await loadWeatherRisk(lat, lon);
+
+            }
+
+            catch(error) {
+
+                message.innerText = isKannada
+                    ? "ಹವಾಮಾನ ಮಾಹಿತಿ ಪಡೆಯಲು ಸಾಧ್ಯವಾಗಲಿಲ್ಲ."
+                    : "Unable to load weather data.";
+
+                console.error("Weather API Error:", error);
+
+            }
+
+        },
+
+        function(error) {
+
+            let errorMessage;
+
+            switch(error.code) {
+
+                case error.PERMISSION_DENIED:
+                    errorMessage = isKannada
+                        ? "ಸ್ಥಳ ಅನುಮತಿಯನ್ನು Allow ಮಾಡಿ."
+                        : "Please allow location permission.";
+                    break;
+
+                case error.POSITION_UNAVAILABLE:
+                    errorMessage = isKannada
+                        ? "ಸ್ಥಳ ಮಾಹಿತಿ ಲಭ್ಯವಿಲ್ಲ."
+                        : "Location information unavailable.";
+                    break;
+
+                case error.TIMEOUT:
+                    errorMessage = isKannada
+                        ? "ಸ್ಥಳ ಪತ್ತೆ ಸಮಯ ಮೀರಿದೆ. ಮತ್ತೆ ಪ್ರಯತ್ನಿಸಿ."
+                        : "Location request timed out. Try again.";
+                    break;
+
+                default:
+                    errorMessage = isKannada
+                        ? "ಸ್ಥಳ ಪತ್ತೆಹಚ್ಚಲು ಸಾಧ್ಯವಾಗಲಿಲ್ಲ."
+                        : "Unable to detect location.";
+            }
+
+            locationText.innerText = isKannada
+                ? "📍 ಸ್ಥಳ ಲಭ್ಯವಿಲ್ಲ"
+                : "📍 Location unavailable";
+
+            message.innerText = errorMessage;
+
+            console.error("Location Error:", error.code, error.message);
+
+        },
+
+        {
+            enableHighAccuracy: true,
+            timeout: 20000,
+            maximumAge: 60000
+        }
+
+    );
+
+}
+
+
+/* RUN WEATHER AFTER PAGE LOAD */
+
+document.addEventListener("DOMContentLoaded", function() {
+    getFarmerWeather();
+});
+
+</script>
+
+</body>
+</html>
