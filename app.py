@@ -1997,36 +1997,53 @@ def voice_history():
 
 # ==========================================
 # RUN APPLICATION
+# ===============================
 # ==========================================
+# CROP GROWTH CALENDAR
+# ==========================================
+
 @app.route('/crop-growth-calendar')
 def crop_growth_calendar():
 
     if "user_id" not in session:
         return redirect(url_for("login"))
 
-    conn = get_db_connection()
-    cursor = conn.cursor(dictionary=True)
+    conn = None
+    cursor = None
+    calendar_data = None
 
     try:
-        cursor.execute(
-            """
+        conn = get_db_connection()
+        cursor = conn.cursor(dictionary=True)
+
+        cursor.execute("""
             SELECT planting_date, completed_tasks
             FROM crop_calendar_progress
             WHERE user_id = %s
-            """,
-            (session["user_id"],)
-        )
+        """, (session["user_id"],))
 
         calendar_data = cursor.fetchone()
 
+    except Exception as e:
+        print("Crop Calendar Error:", e)
+        flash("Unable to load Crop Calendar.")
+
     finally:
-        cursor.close()
-        conn.close()
+        if cursor:
+            cursor.close()
+
+        if conn:
+            conn.close()
 
     return render_template(
         'crop_growth_calendar.html',
         calendar_data=calendar_data
     )
+
+
+# ==========================================
+# SAVE CROP CALENDAR
+# ==========================================
 
 @app.route('/save-crop-calendar', methods=['POST'])
 def save_crop_calendar():
@@ -2040,7 +2057,16 @@ def save_crop_calendar():
     completed_tasks = data.get("completed_tasks", {})
 
     if not planting_date:
-        return {"success": False, "message": "Planting date required"}, 400
+        return {
+            "success": False,
+            "message": "Planting date required"
+        }, 400
+
+    if not isinstance(completed_tasks, dict):
+        return {
+            "success": False,
+            "message": "Invalid completed tasks"
+        }, 400
 
     conn = None
     cursor = None
@@ -2049,39 +2075,49 @@ def save_crop_calendar():
         conn = get_db_connection()
 
         if conn is None:
-            return {"success": False, "message": "Database connection failed"}, 500
+            return {
+                "success": False,
+                "message": "Database connection failed"
+            }, 500
 
         cursor = conn.cursor()
 
-        cursor.execute(
-            """
+        cursor.execute("""
             INSERT INTO crop_calendar_progress
             (user_id, planting_date, completed_tasks)
             VALUES (%s, %s, %s)
             ON DUPLICATE KEY UPDATE
             planting_date = VALUES(planting_date),
             completed_tasks = VALUES(completed_tasks)
-            """,
-            (
-                session["user_id"],
-                planting_date,
-                json.dumps(completed_tasks)
-            )
-        )
+        """, (
+            session["user_id"],
+            planting_date,
+            json.dumps(completed_tasks)
+        ))
 
         conn.commit()
 
-        print("CROP CALENDAR SAVED:", session["user_id"], planting_date)
+        print(
+            "CROP CALENDAR SAVED:",
+            session["user_id"],
+            planting_date
+        )
 
-        return {"success": True, "message": "Calendar saved successfully"}
+        return {
+            "success": True,
+            "message": "Calendar saved successfully"
+        }
 
     except Exception as e:
         if conn:
             conn.rollback()
 
-        print("Calendar save error:", e)
+        print("Calendar save error:", repr(e))
 
-        return {"success": False, "message": str(e)}, 500
+        return {
+            "success": False,
+            "message": "Unable to save calendar"
+        }, 500
 
     finally:
         if cursor:
@@ -2090,7 +2126,19 @@ def save_crop_calendar():
         if conn:
             conn.close()
 
-        conn.close()
+
+# ==========================================
+# LOGOUT
+# ==========================================
+
+@app.route('/logout')
+def logout():
+    session.clear()
+    return redirect(url_for('login'))
+
+
+if __name__ == "__main__":
+    app.run(debug=True)
 
 if __name__ == "__main__":
     app.run(debug=True)

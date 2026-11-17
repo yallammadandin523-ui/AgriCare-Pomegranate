@@ -323,9 +323,9 @@
                 <span>⌂</span> {{ t('dashboard') }}
             </a>
 
-            <a href="#" class="menu-item">
-                <span>▦</span> {{ t('crop_calendar') }}
-            </a>
+           <a href="{{ url_for('crop_growth_calendar') }}" class="menu-item">
+    <span>📅</span> Crop Calendar
+</a>
 
             <a href="{{ url_for('disease_detection') }}" class="menu-item">
                 <span>🌿</span> {{ t('disease_detection') }}
