@@ -11,6 +11,9 @@ https://agricare-pomegranate.onrender.com
 AgriCare AI is a smart agriculture web application that uses Artificial Intelligence to support farmers with crop health monitoring and agricultural guidance.
 
 The application provides AI-based disease and pest detection, weather risk monitoring, a smart crop calendar, and a voice assistant with Kannada and English language support.
+## 📸 Project Screenshot
+
+![AgriCare AI Dashboard](screenshots/dashboard.png)
 
 ## ✨ Key Features
 
